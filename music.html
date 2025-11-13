@@ -372,6 +372,74 @@
         const playlistTitle = document.getElementById('playlistTitle');
         const clearPlaylistBtn = document.getElementById('clearPlaylistBtn');
 
+        // 歌词显示更新函数
+        window.updateLyricsDisplay = function() {
+            // 获取歌词显示设置
+            let showLyrics = false;
+            
+            // 首先尝试直接获取showLyrics复选框（如果模态框打开）
+            const showLyricsCheckbox = document.getElementById('showLyrics');
+            if (showLyricsCheckbox) {
+                showLyrics = showLyricsCheckbox.checked;
+            } else {
+                // 从localStorage获取设置
+                const savedSettings = localStorage.getItem('musicSettings');
+                if (savedSettings) {
+                    const settings = JSON.parse(savedSettings);
+                    showLyrics = settings.showLyrics || false;
+                }
+            }
+            
+            // 这里将根据showLyrics值控制歌词显示
+            // 在实际应用中，这里会显示或隐藏歌词容器，并更新歌词内容
+            console.log('歌词显示设置:', showLyrics);
+            
+            // 如果正在播放歌曲且有歌词，更新歌词显示
+            if (showLyrics && window.currentSong && window.currentSong.lyric) {
+                // 查找或创建歌词显示容器
+                let lyricsContainer = document.getElementById('lyricsContainer');
+                if (!lyricsContainer) {
+                    lyricsContainer = document.createElement('div');
+                    lyricsContainer.id = 'lyricsContainer';
+                    lyricsContainer.className = `mt-4 text-center p-4 rounded-lg transition-opacity duration-300 ${window.currentTheme === 'black' ? 'text-text-primary-dark' : 'text-text-primary'}`;
+                    lyricsContainer.style.maxHeight = '200px';
+                    lyricsContainer.style.overflowY = 'auto';
+                    // 插入到歌曲信息下方
+                    const songInfoContainer = document.querySelector('#songTitle').parentElement;
+                    songInfoContainer.appendChild(lyricsContainer);
+                }
+                
+                // 处理并显示歌词
+                const formattedLyrics = formatLyrics(window.currentSong.lyric);
+                lyricsContainer.innerHTML = formattedLyrics;
+                lyricsContainer.style.opacity = '1';
+            } else if (document.getElementById('lyricsContainer')) {
+                // 隐藏歌词容器
+                document.getElementById('lyricsContainer').style.opacity = '0';
+                setTimeout(() => {
+                    const lyricsContainer = document.getElementById('lyricsContainer');
+                    if (lyricsContainer && lyricsContainer.style.opacity === '0') {
+                        lyricsContainer.remove();
+                    }
+                }, 300);
+            }
+        }
+        
+        // 歌词格式化函数
+        function formatLyrics(lyrics) {
+            // 简单的歌词格式化，实际应用可能需要更复杂的解析
+            // 这里假设lyrics是纯文本，按行分割显示
+            if (typeof lyrics !== 'string') return '<p>暂无歌词</p>';
+            
+            // 替换换行符为HTML换行
+            const formatted = lyrics
+                .split('\n')
+                .map(line => `<p class="my-1">${line}</p>`)
+                .join('');
+            
+            return formatted;
+        }
+        
         // 初始化（重点：修复主题应用逻辑）
         document.addEventListener('DOMContentLoaded', function() {
             console.log('播放器初始化完成，当前主题:', window.currentTheme);
@@ -381,6 +449,16 @@
             setupEventListeners();
             setupAudioEvents();
             renderPlaylist();
+            
+            // 初始化歌词显示设置
+            const savedSettings = localStorage.getItem('musicSettings');
+            if (savedSettings) {
+                const settings = JSON.parse(savedSettings);
+                window.showLyrics = settings.showLyrics || false;
+            }
+            
+            // 初始化时调用一次歌词显示更新函数
+            updateLyricsDisplay();
         });
 
         // 设置事件监听器
@@ -786,7 +864,10 @@
                     // 保存当前歌曲的歌词
                     window.currentSong.lyric = lyric;
                     
-                    // 如果有歌词，更新歌词显示
+                    // 更新歌词显示
+                    updateLyricsDisplay();
+                    
+                    // 如果有歌词，输出日志
                     if (lyric) {
                         console.log('处理歌词:', lyric.substring(0, 100) + '...');
                         // 这里可以添加歌词解析和显示的逻辑
@@ -1409,20 +1490,21 @@
                                     <span class="${window.currentTheme === 'black' ? 'text-text-primary-dark' : 'text-text-primary'}">显示迷你播放器</span>
                                 </label>
                                 <label class="flex items-center">
-                                    <input type="checkbox" id="showLyrics" class="mr-3 text-accent">
-                                    <span class="${window.currentTheme === 'black' ? 'text-text-primary-dark' : 'text-text-primary'}">歌词显示（暂未实现）</span>
+                                    <input type="checkbox" id="showLyrics" class="mr-3 text-accent" onchange="updateLyricsDisplay()">
+                                    <span class="${window.currentTheme === 'black' ? 'text-text-primary-dark' : 'text-text-primary'}">显示歌词</span>
                                 </label>
                             </div>
                         </div>
                         
                         <div>
-                            <label class="block text-sm font-medium mb-2 ${window.currentTheme === 'black' ? 'text-text-primary-dark' : 'text-text-primary'}">主题设置（默认白色）</label>
-                            <div class="flex space-x-3 flex-wrap">
-                                <button class="theme-btn w-10 h-10 rounded-full bg-theme-white border-2 ${currentTheme === 'white' ? 'border-accent' : 'border-transparent'}" data-theme="white"></button>
-                                <button class="theme-btn w-10 h-10 rounded-full bg-theme-black border-2 ${currentTheme === 'black' ? 'border-accent' : 'border-transparent'}" data-theme="black"></button>
-                                <button class="theme-btn w-10 h-10 rounded-full bg-theme-blue border-2 ${currentTheme === 'blue' ? 'border-accent' : 'border-transparent'}" data-theme="blue"></button>
-                                <button class="theme-btn w-10 h-10 rounded-full bg-theme-green border-2 ${currentTheme === 'green' ? 'border-accent' : 'border-transparent'}" data-theme="green"></button>
-                                <button class="theme-btn w-10 h-10 rounded-full bg-theme-pink border-2 ${currentTheme === 'pink' ? 'border-accent' : 'border-transparent'}" data-theme="pink"></button>
+                            <label class="block text-sm font-medium mb-2 ${window.currentTheme === 'black' ? 'text-text-primary-dark' : 'text-text-primary'}">主题设置</label>
+                            <div class="flex space-x-3 items-center">
+                                <span class="${window.currentTheme === 'black' ? 'text-text-primary-dark' : 'text-text-primary'}">浅色</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="themeToggle" class="sr-only peer" ${currentTheme === 'black' ? 'checked' : ''} onchange="toggleThemeMode()">
+                                    <div class="w-11 h-6 bg-surface/50 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent"></div>
+                                </label>
+                                <span class="${window.currentTheme === 'black' ? 'text-text-primary-dark' : 'text-text-primary'}">深色</span>
                             </div>
                         </div>
                         
@@ -1435,28 +1517,30 @@
             
             document.body.appendChild(modal);
             
-            // 主题按钮事件
-            modal.querySelectorAll('.theme-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    modal.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('border-accent'));
-                    this.classList.add('border-accent');
-                    applyTheme(this.dataset.theme);
-                });
-            });
+            // 主题切换事件
+            window.toggleThemeMode = function() {
+                const newTheme = modal.getElementById('themeToggle').checked ? 'black' : 'white';
+                applyTheme(newTheme);
+            };
 
             // 保存设置按钮事件
             modal.getElementById('saveSettings').addEventListener('click', function() {
-                const selectedTheme = modal.querySelector('.theme-btn.border-accent').dataset.theme;
+                const selectedTheme = modal.getElementById('themeToggle').checked ? 'black' : 'white';
                 localStorage.setItem('musicTheme', selectedTheme);
                 window.currentTheme = selectedTheme;
                 
                 const autoPlayNext = modal.getElementById('autoPlayNext').checked;
                 const showMiniPlayer = modal.getElementById('showMiniPlayer').checked;
+                const showLyrics = modal.getElementById('showLyrics').checked;
                 localStorage.setItem('musicSettings', JSON.stringify({
                     autoPlayNext,
                     showMiniPlayer,
+                    showLyrics,
                     quality: modal.getElementById('qualitySelect').value
                 }));
+                
+                // 更新歌词显示状态
+                updateLyricsDisplay();
                 
                 showNotification('设置已保存并生效', 'success');
                 modal.remove();
@@ -1476,9 +1560,15 @@
             
             // 1. 切换body背景色和全局文本色
             body.classList.remove('bg-theme-white', 'bg-theme-black', 'bg-theme-blue', 'bg-theme-green', 'bg-theme-pink');
-            body.classList.add(`bg-${theme}`);
+            body.classList.add(isDarkTheme ? 'bg-theme-black' : 'bg-theme-white');
             body.classList.toggle('text-text-primary', !isDarkTheme);
             body.classList.toggle('text-text-primary-dark', isDarkTheme);
+            
+            // 同步主题开关状态
+            const themeToggle = document.getElementById('themeToggle');
+            if (themeToggle) {
+                themeToggle.checked = isDarkTheme;
+            }
             
             // 2. 切换玻璃效果（浅色/深色）
             const glassLightElements = [mainNav, playerCard, playlistCard, miniPlayer];
