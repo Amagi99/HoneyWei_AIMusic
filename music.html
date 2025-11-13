@@ -24,7 +24,7 @@
         
         // 显示收藏列表
         function showCollectionList() {
-            alert('显示收藏列表函数被调用');
+            console.log('显示收藏列表函数被调用');
             try {
                 const collectionList = document.getElementById('collectionList');
                 const collectionCount = document.getElementById('collectionCount');
@@ -34,7 +34,7 @@
                 
                 // 检查元素是否存在
                 if (!collectionList || !collectionCount || !emptyCollection || !collectionSection || !searchResults) {
-                    alert('缺少必要的HTML元素');
+                    console.error('缺少必要的HTML元素');
                     return;
                 }
                 
@@ -86,10 +86,10 @@
                 // 滚动到顶部
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 
-                alert('收藏列表显示成功');
+                console.log('收藏列表显示成功');
             } catch (error) {
                 console.error('showCollectionList函数执行出错:', error);
-                alert('错误: ' + error.message);
+                // 错误信息只记录到控制台，不弹出alert
             }
         }
         
