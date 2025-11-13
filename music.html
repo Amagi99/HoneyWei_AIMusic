@@ -9,6 +9,151 @@
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/v4-shims.min.css" rel="stylesheet">
     <script>
+        // 播放歌曲函数，支持从不同列表播放
+        function playSong(index, songList) {
+            // 如果传入的是收藏列表，将其设置为当前播放列表
+            if (songList === window.collection) {
+                window.playlist = [...window.collection]; // 创建副本避免直接修改收藏列表
+                window.isFromCollection = true; // 标记是从收藏列表播放的
+            } else {
+                window.isFromCollection = false;
+            }
+            // 使用现有的播放函数播放歌曲
+            playSongByIndex(index);
+        }
+        
+        // 显示收藏列表
+        function showCollectionList() {
+            alert('显示收藏列表函数被调用');
+            try {
+                const collectionList = document.getElementById('collectionList');
+                const collectionCount = document.getElementById('collectionCount');
+                const emptyCollection = document.getElementById('emptyCollection');
+                const collectionSection = document.getElementById('collectionSection');
+                const searchResults = document.getElementById('searchResults');
+                
+                // 检查元素是否存在
+                if (!collectionList || !collectionCount || !emptyCollection || !collectionSection || !searchResults) {
+                    alert('缺少必要的HTML元素');
+                    return;
+                }
+                
+                // 清空现有列表
+                collectionList.innerHTML = '';
+                
+                // 更新收藏数量
+                collectionCount.textContent = `(${window.collection.length}首)`;
+                
+                // 显示空状态或列表
+                if (window.collection.length === 0) {
+                    collectionList.classList.add('hidden');
+                    emptyCollection.classList.remove('hidden');
+                } else {
+                    collectionList.classList.remove('hidden');
+                    emptyCollection.classList.add('hidden');
+                    
+                    // 渲染收藏的歌曲列表
+                    window.collection.forEach((song, index) => {
+                        const songItem = document.createElement('div');
+                        songItem.className = 'flex items-center justify-between p-4 rounded-xl hover:bg-surface/30 transition-colors duration-300 group';
+                        songItem.innerHTML = `
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden">
+                                    <img src="${song.al?.picUrl || 'https://p2.music.126.net/6y-UleORITEDbvrOLV0Q8A==/5639395138885805.jpg'}" alt="${song.name}" class="w-full h-full object-cover">
+                                </div>
+                                <div class="flex-grow min-w-0">
+                                    <h4 class="text-text-primary font-medium truncate">${song.name}</h4>
+                                    <p class="text-text-secondary text-sm truncate">${song.ar?.map(artist => artist.name).join(', ') || '未知艺术家'}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <button class="text-text-secondary hover:text-accent transition-colors duration-300" onclick="window.playSong(${index}, window.collection)">
+                                    <i class="fas fa-play"></i>
+                                </button>
+                                <button class="text-text-secondary hover:text-red-500 transition-colors duration-300" onclick="window.removeFromCollection('${song.id}')">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                            </div>
+                        `;
+                        collectionList.appendChild(songItem);
+                    });
+                }
+                
+                // 显示收藏列表，隐藏搜索结果
+                collectionSection.classList.remove('hidden');
+                searchResults.classList.add('hidden');
+                
+                // 滚动到顶部
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+                alert('收藏列表显示成功');
+            } catch (error) {
+                console.error('showCollectionList函数执行出错:', error);
+                alert('错误: ' + error.message);
+            }
+        }
+        
+        // 从收藏列表中移除歌曲
+        function removeFromCollection(songId) {
+            window.collection = window.collection.filter(item => item.id !== songId);
+            localStorage.setItem('musicCollection', JSON.stringify(window.collection));
+            // 重新渲染收藏列表
+            showCollectionList();
+            // 如果当前播放的是被移除的歌曲，更新收藏按钮状态
+            if (window.currentSong && window.currentSong.id === songId) {
+                updateCollectButtonStatus();
+            }
+        }
+        
+
+        
+        // 确保showCollectionList函数在全局范围内可访问
+        window.showCollectionList = showCollectionList;
+        window.removeFromCollection = removeFromCollection;
+        window.playSong = playSong;
+        
+        // 添加全局初始化调试
+        console.log('收藏功能初始化完成，函数绑定状态:', { 
+            showCollectionList: typeof window.showCollectionList === 'function',
+            removeFromCollection: typeof window.removeFromCollection === 'function',
+            playSong: typeof window.playSong === 'function'
+        });
+        
+        // 确保collection对象存在
+        if (!window.collection) {
+            window.collection = [
+                {
+                    id: 'test1',
+                    name: '测试歌曲1',
+                    ar: [{name: '测试歌手1'}],
+                    al: {picUrl: 'https://p2.music.126.net/6y-UleORITEDbvrOLV0Q8A==/5639395138885805.jpg'}
+                },
+                {
+                    id: 'test2',
+                    name: '测试歌曲2',
+                    ar: [{name: '测试歌手2'}],
+                    al: {picUrl: 'https://p2.music.126.net/6y-UleORITEDbvrOLV0Q8A==/5639395138885805.jpg'}
+                }
+            ];
+            console.log('已初始化测试收藏列表');
+        }
+        
+        // 简单测试函数，可在控制台手动调用测试
+        window.testCollection = function() {
+            alert('测试函数被调用，准备显示收藏列表');
+            try {
+                console.log('手动调用showCollectionList测试');
+                window.showCollectionList();
+                alert('showCollectionList调用成功');
+            } catch (e) {
+                alert('showCollectionList调用失败: ' + e.message);
+                console.error('测试失败:', e);
+            }
+        };
+        console.log('测试函数已注册，请在控制台调用 window.testCollection() 进行测试');
+        
+        // 页面加载初始化完成
+        
         tailwind.config = {
             theme: {
                 extend: {
@@ -129,6 +274,9 @@
                 <button id="collectButton" class="bg-accent/20 hover:bg-accent/30 text-accent px-4 py-2 rounded-full transition-all duration-300">
                     <i class="fas fa-heart mr-2"></i>收藏
                 </button>
+                <button id="myCollectionButton" class="bg-accent/20 hover:bg-accent/30 text-accent px-4 py-2 rounded-full transition-all duration-300" onclick="window.showCollectionList();">
+                    <i class="fas fa-bookmark mr-2"></i>我的收藏
+                </button>
                 <button id="settingsButton" class="bg-surface/30 hover:bg-surface/50 text-text-primary px-4 py-2 rounded-full transition-all duration-300">
                     <i class="fas fa-cog"></i>
                 </button>
@@ -170,6 +318,21 @@
             </div>
         </div>
 
+        <!-- 收藏列表区域 -->
+        <div id="collectionSection" class="hidden mb-12 animate-fade-in">
+            <h3 class="text-2xl font-bold mb-6 flex items-center">
+                <i class="fas fa-bookmark mr-3 text-accent"></i>
+                我的收藏
+                <span id="collectionCount" class="ml-2 text-sm text-text-secondary">(0首)</span>
+            </h3>
+            <div id="collectionList" class="space-y-4"></div>
+            <div id="emptyCollection" class="hidden text-center py-12">
+                <i class="fas fa-heart-broken text-6xl text-text-secondary/30 mb-4"></i>
+                <p class="text-text-secondary">暂无收藏歌曲</p>
+                <p class="text-text-secondary/70 text-sm mt-2">收藏的歌曲会显示在这里</p>
+            </div>
+        </div>
+        
         <!-- 搜索结果区域 -->
         <div id="searchResults" class="hidden mb-12">
             <h3 id="searchResultTitle" class="text-2xl font-bold mb-6 flex items-center">
