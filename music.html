@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>音乐在线播放器</title>
+    <title>Honey Wei——音乐网页版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/v4-shims.min.css" rel="stylesheet">
@@ -122,7 +122,7 @@
                 <div class="w-10 h-10 bg-accent rounded-full flex items-center justify-center">
                     <i class="fas fa-music text-white text-lg"></i>
                 </div>
-                <h1 class="text-xl font-bold gradient-text">音乐播放器</h1>
+                <h1 class="text-xl font-bold gradient-text">Honey Wei Music</h1>
             </div>
             <div class="flex items-center space-x-4">
                 <button id="collectButton" class="bg-accent/20 hover:bg-accent/30 text-accent px-4 py-2 rounded-full transition-all duration-300">
@@ -452,6 +452,7 @@
                     lyricsContainer.style.justifyContent = 'center';
                     lyricsContainer.style.alignItems = 'center';
                     lyricsContainer.style.position = 'relative';
+                    lyricsContainer.style.overflow = 'hidden';
                     // 插入到歌曲信息下方
                     const songInfoContainer = document.querySelector('#songTitle').parentElement;
                     songInfoContainer.appendChild(lyricsContainer);
