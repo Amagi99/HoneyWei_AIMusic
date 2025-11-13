@@ -609,19 +609,45 @@
                 if (audioUrl) {
                     showNotification('开始下载...', 'info');
                     
-                    const a = document.createElement('a');
-                    a.href = audioUrl;
-                    a.download = `${song.name} - ${song.artist}.mp3`;
-                    a.crossOrigin = 'anonymous';
-                    document.body.appendChild(a);
-                    
-                    a.click();
-                    
-                    setTimeout(() => {
-                        document.body.removeChild(a);
-                    }, 100);
-                    
-                    showNotification(`下载已开始: ${song.name}`, 'success');
+                    try {
+                        // 使用fetch获取音频数据并创建blob来触发下载
+                        const response = await fetch(audioUrl);
+                        if (!response.ok) throw new Error(`获取音频数据失败，状态码: ${response.status}`);
+                        
+                        const blob = await response.blob();
+                        const blobUrl = URL.createObjectURL(blob);
+                        
+                        const a = document.createElement('a');
+                        a.href = blobUrl;
+                        a.download = `${song.artist} - ${song.name}.mp3`;
+                        a.style.display = 'none';
+                        document.body.appendChild(a);
+                        
+                        a.click();
+                        
+                        // 清理
+                        setTimeout(() => {
+                            document.body.removeChild(a);
+                            URL.revokeObjectURL(blobUrl);
+                        }, 100);
+                        
+                        showNotification(`下载已开始: ${song.name}`, 'success');
+                    } catch (downloadError) {
+                        console.error('下载处理失败:', downloadError);
+                        // 如果blob方式失败，回退到原始方式
+                        const a = document.createElement('a');
+                        a.href = audioUrl;
+                        a.download = `${song.artist} - ${song.name}.mp3`;
+                        a.crossOrigin = 'anonymous';
+                        a.style.display = 'none';
+                        document.body.appendChild(a);
+                        
+                        a.click();
+                        
+                        setTimeout(() => {
+                            document.body.removeChild(a);
+                        }, 100);
+                    }
                 } else {
                     showNotification('无法获取下载链接', 'error');
                 }
@@ -1153,14 +1179,38 @@
                 }
 
                 if (audioUrl) {
-                    // 创建临时下载链接
-                    const link = document.createElement('a');
-                    link.href = audioUrl;
-                    link.download = `${song.name} - ${song.artist}.mp3`;
-                    link.style.display = 'none';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
+                    try {
+                        // 使用fetch获取音频数据并创建blob来触发下载
+                        const response = await fetch(audioUrl);
+                        if (!response.ok) throw new Error(`获取音频数据失败，状态码: ${response.status}`);
+                        
+                        const blob = await response.blob();
+                        const blobUrl = URL.createObjectURL(blob);
+                        
+                        // 创建临时下载链接
+                        const link = document.createElement('a');
+                        link.href = blobUrl;
+                        link.download = `${song.artist} - ${song.name}.mp3`;
+                        link.style.display = 'none';
+                        document.body.appendChild(link);
+                        link.click();
+                        
+                        // 清理
+                        setTimeout(() => {
+                            document.body.removeChild(link);
+                            URL.revokeObjectURL(blobUrl);
+                        }, 100);
+                    } catch (downloadError) {
+                        console.error('下载处理失败:', downloadError);
+                        // 如果blob方式失败，回退到原始方式
+                        const link = document.createElement('a');
+                        link.href = audioUrl;
+                        link.download = `${song.artist} - ${song.name}.mp3`;
+                        link.style.display = 'none';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    }
                     
                     // 延迟显示成功消息，确保下载开始
                     setTimeout(() => {
