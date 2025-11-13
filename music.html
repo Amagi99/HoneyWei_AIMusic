@@ -372,6 +372,48 @@
         const playlistTitle = document.getElementById('playlistTitle');
         const clearPlaylistBtn = document.getElementById('clearPlaylistBtn');
 
+        // 歌词解析与同步函数
+        window.parseLyrics = function(lyricsText) {
+            // 解析歌词格式：[00:00.00] 歌词文本，支持多种可能的格式
+            const lyrics = [];
+            // 更灵活的正则表达式，匹配各种时间戳格式
+            const timeRegex = /\[(\d{2}):(\d{2})(?:\.(\d{1,3}))?\](.*?)(?=\[\d{2}:|$)/g;
+            let match;
+            
+            // 首先尝试匹配标准的带时间戳的歌词格式
+            let hasTimeStamps = false;
+            while ((match = timeRegex.exec(lyricsText)) !== null) {
+                hasTimeStamps = true;
+                const minutes = parseInt(match[1]);
+                const seconds = parseInt(match[2]);
+                const milliseconds = match[3] ? parseInt(match[3]) : 0;
+                const text = match[4].trim();
+                
+                // 转换为秒数
+                const time = minutes * 60 + seconds + milliseconds / 1000;
+                
+                if (text) { // 忽略空歌词
+                    lyrics.push({ time, text });
+                }
+            }
+            
+            // 如果没有找到带时间戳的歌词，将整个文本按行分割
+            if (!hasTimeStamps && lyricsText) {
+                const lines = lyricsText.split('\n');
+                lines.forEach((line, index) => {
+                    // 简单地为每行分配递增的时间
+                    const cleanLine = line.replace(/\[\d{2}:\d{2}(?:\.\d{1,3})?\]/g, '').trim();
+                    if (cleanLine) {
+                        // 为无时间戳歌词分配大致时间（每10秒一行）
+                        lyrics.push({ time: index * 10, text: cleanLine });
+                    }
+                });
+            }
+            
+            // 按时间排序
+            return lyrics.sort((a, b) => a.time - b.time);
+        }
+        
         // 歌词显示更新函数
         window.updateLyricsDisplay = function() {
             // 获取歌词显示设置
@@ -391,7 +433,6 @@
             }
             
             // 这里将根据showLyrics值控制歌词显示
-            // 在实际应用中，这里会显示或隐藏歌词容器，并更新歌词内容
             console.log('歌词显示设置:', showLyrics);
             
             // 如果正在播放歌曲且有歌词，更新歌词显示
@@ -401,17 +442,26 @@
                 if (!lyricsContainer) {
                     lyricsContainer = document.createElement('div');
                     lyricsContainer.id = 'lyricsContainer';
-                    lyricsContainer.className = `mt-4 text-center p-4 rounded-lg transition-opacity duration-300 ${window.currentTheme === 'black' ? 'text-text-primary-dark' : 'text-text-primary'}`;
-                    lyricsContainer.style.maxHeight = '200px';
-                    lyricsContainer.style.overflowY = 'auto';
+                    // 修复白色背景下歌词不可见问题：使用对比色
+                    const textColorClass = window.currentTheme === 'black' ? 'text-white' : 'text-gray-800';
+                    lyricsContainer.className = `mt-4 text-center p-4 rounded-lg transition-opacity duration-300 ${textColorClass}`;
+                    // 固定高度但不显示滚动条
+                    lyricsContainer.style.height = '200px';
+                    lyricsContainer.style.display = 'flex';
+                    lyricsContainer.style.flexDirection = 'column';
+                    lyricsContainer.style.justifyContent = 'center';
+                    lyricsContainer.style.alignItems = 'center';
+                    lyricsContainer.style.position = 'relative';
                     // 插入到歌曲信息下方
                     const songInfoContainer = document.querySelector('#songTitle').parentElement;
                     songInfoContainer.appendChild(lyricsContainer);
                 }
                 
-                // 处理并显示歌词
-                const formattedLyrics = formatLyrics(window.currentSong.lyric);
-                lyricsContainer.innerHTML = formattedLyrics;
+                // 解析歌词
+                window.parsedLyrics = window.parseLyrics(window.currentSong.lyric);
+                
+                // 初始化歌词显示
+                updateSyncedLyrics();
                 lyricsContainer.style.opacity = '1';
             } else if (document.getElementById('lyricsContainer')) {
                 // 隐藏歌词容器
@@ -425,19 +475,50 @@
             }
         }
         
-        // 歌词格式化函数
-        function formatLyrics(lyrics) {
-            // 简单的歌词格式化，实际应用可能需要更复杂的解析
-            // 这里假设lyrics是纯文本，按行分割显示
-            if (typeof lyrics !== 'string') return '<p>暂无歌词</p>';
+        // 根据当前播放进度更新同步歌词
+        function updateSyncedLyrics() {
+            const lyricsContainer = document.getElementById('lyricsContainer');
+            if (!lyricsContainer || !window.parsedLyrics || !audioPlayer) return;
             
-            // 替换换行符为HTML换行
-            const formatted = lyrics
-                .split('\n')
-                .map(line => `<p class="my-1">${line}</p>`)
-                .join('');
+            const currentTime = audioPlayer.currentTime;
+            let activeLineIndex = -1;
             
-            return formatted;
+            // 找到当前时间应该高亮的歌词行
+            for (let i = 0; i < window.parsedLyrics.length; i++) {
+                if (currentTime >= window.parsedLyrics[i].time && 
+                    (i === window.parsedLyrics.length - 1 || currentTime < window.parsedLyrics[i + 1].time)) {
+                    activeLineIndex = i;
+                    break;
+                }
+            }
+            
+            // 构建歌词HTML，高亮当前行
+            let html = '';
+            const displayRange = 3; // 当前行上下各显示3行
+            
+            // 如果没有找到活跃行，显示前几行
+            const startIndex = activeLineIndex >= 0 ? 
+                Math.max(0, activeLineIndex - displayRange) : 0;
+            const endIndex = activeLineIndex >= 0 ? 
+                Math.min(window.parsedLyrics.length - 1, activeLineIndex + displayRange) : 
+                Math.min(window.parsedLyrics.length - 1, displayRange * 2);
+            
+            for (let i = startIndex; i <= endIndex; i++) {
+                const isActive = i === activeLineIndex;
+                // 确保文本颜色在任何主题下都清晰可见
+                const textColorClass = window.currentTheme === 'black' ? 
+                    (isActive ? 'text-white font-bold text-xl' : 'text-gray-300 text-lg') : 
+                    (isActive ? 'text-gray-900 font-bold text-xl' : 'text-gray-600 text-lg');
+                html += `<p class="my-3 transition-all duration-300 ${textColorClass}">${window.parsedLyrics[i].text}</p>`;
+            }
+            
+            // 如果没有解析到任何歌词，显示提示信息
+            if (window.parsedLyrics.length === 0) {
+                const textColorClass = window.currentTheme === 'black' ? 'text-white' : 'text-gray-800';
+                html = `<p class="my-1 ${textColorClass}">暂无歌词</p>`;
+            }
+            
+            lyricsContainer.innerHTML = html;
         }
         
         // 初始化（重点：修复主题应用逻辑）
@@ -1081,6 +1162,11 @@
                 const progressPercent = (audioPlayer.currentTime / audioPlayer.duration) * 100;
                 progress.style.width = `${progressPercent}%`;
                 currentTimeSpan.textContent = formatTime(audioPlayer.currentTime);
+                
+                // 更新同步歌词显示
+                if (window.parsedLyrics && document.getElementById('lyricsContainer')) {
+                    updateSyncedLyrics();
+                }
             }
         }
 
