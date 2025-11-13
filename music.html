@@ -174,7 +174,7 @@
             <h3 id="searchResultTitle" class="text-2xl font-bold mb-6 flex items-center">
                 <i class="fas fa-search mr-3 text-accent"></i>
                 搜索结果
-                <span id="resultCount" class="ml-2 text-sm text-text-secondary">(最多显示20首)</span>
+                <span id="resultCount" class="ml-2 text-sm text-text-secondary">(最多显示100首)</span>
             </h3>
             <div id="resultsList" class="space-y-4"></div>
         </div>
@@ -394,6 +394,9 @@
             // 设置按钮
             document.getElementById('settingsButton').addEventListener('click', showSettingsModal);
             
+            // 清空播放列表按钮
+            clearPlaylistBtn.addEventListener('click', clearPlaylist);
+            
             // 音频音量设置
             audioPlayer.volume = currentVolume;
             updateVolumeBar();
@@ -512,7 +515,7 @@
 
                     console.log('处理后的歌曲数据:', window.currentResults);
                     displaySearchResults(window.currentResults);
-                    document.getElementById('resultCount').textContent = `(找到 ${window.currentResults.length} 首，最多显示20首)`;
+                    document.getElementById('resultCount').textContent = `(找到 ${window.currentResults.length} 首，最多显示100首)`;
                     
                     if (!window.searchHistory.includes(query)) {
                         window.searchHistory.unshift(query);
@@ -1259,6 +1262,7 @@
             window.currentSong = null;
             window.currentIndex = -1;
             window.isPlaying = false;
+            audioPlayer.pause(); // 立即停止播放歌曲
             updatePlayPauseButton();
             miniPlayer.classList.add('hidden');
             renderPlaylist();
