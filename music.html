@@ -489,15 +489,17 @@
                 if (data.code === 200 && data.data && Array.isArray(data.data) && data.data.length > 0) {
                     window.currentResults = data.data.map((item, index) => {
                         let artist = '未知歌手';
-                        if (item.artist) {
-                            if (Array.isArray(item.artist)) {
-                                artist = item.artist.map(art => art.name || art).join(', ');
-                            } else if (typeof item.artist === 'object') {
-                                artist = item.artist.name || JSON.stringify(item.artist);
-                            } else {
-                                artist = item.artist.toString();
-                            }
-                        }
+                if (item.artists && Array.isArray(item.artists)) {
+                    artist = item.artists.map(art => art.name || '未知歌手').join(', ');
+                } else if (item.artist) {
+                    if (Array.isArray(item.artist)) {
+                        artist = item.artist.map(art => typeof art === 'object' ? art.name || '未知歌手' : art).join(', ');
+                    } else if (typeof item.artist === 'object') {
+                        artist = item.artist.name || '未知歌手';
+                    } else {
+                        artist = item.artist.toString();
+                    }
+                }
 
                         const songId = item.id || item.songId || item.musicId || index.toString();
                         
@@ -505,7 +507,7 @@
                             id: songId ? songId.toString() : Date.now().toString(),
                             name: item.name || '未知歌曲',
                             artist: artist,
-                            album: item.album || item.albumName || '未知专辑',
+                            album: typeof item.album === 'object' ? item.album.name || '未知专辑' : item.album || item.albumName || '未知专辑',
                             picUrl: item.picUrl || item.albumPic || 'https://via.placeholder.com/100',
                             originalData: item
                         };
@@ -1510,9 +1512,15 @@
                         // 处理歌手信息
                         let artist = '';
                         if (item.artists && Array.isArray(item.artists)) {
-                            artist = item.artists.map(a => a.name).join(' / ');
+                            artist = item.artists.map(a => a.name || '未知艺术家').join(' / ');
                         } else if (item.artist) {
-                            artist = Array.isArray(item.artist) ? item.artist.join(' / ') : item.artist;
+                            if (Array.isArray(item.artist)) {
+                                artist = item.artist.map(a => typeof a === 'object' ? a.name || '未知艺术家' : a).join(' / ');
+                            } else if (typeof item.artist === 'object') {
+                                artist = item.artist.name || '未知艺术家';
+                            } else {
+                                artist = item.artist;
+                            }
                         }
 
                         const songId = item.id || item.songId || item.musicId;
@@ -1521,7 +1529,7 @@
                             id: songId ? songId.toString() : Date.now().toString(),
                             name: item.name || '未知歌曲',
                             artist: artist || '未知艺术家',
-                            album: item.album || item.albumName || '未知专辑',
+                            album: typeof item.album === 'object' ? item.album.name || '未知专辑' : item.album || item.albumName || '未知专辑',
                             picUrl: item.picUrl || item.albumPic || `https://p2.music.126.net/${songId}/cover.jpg` || 'https://via.placeholder.com/200',
                             originalData: item
                         };
