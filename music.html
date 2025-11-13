@@ -450,11 +450,28 @@
             setupAudioEvents();
             renderPlaylist();
             
-            // 初始化歌词显示设置
+            // 初始化所有设置
             const savedSettings = localStorage.getItem('musicSettings');
             if (savedSettings) {
                 const settings = JSON.parse(savedSettings);
                 window.showLyrics = settings.showLyrics || false;
+                
+                // 应用设置到对应DOM元素（即使当前隐藏，设置也会被正确保存）
+                const setElementValue = (id, value, type = 'checkbox') => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        if (type === 'checkbox') {
+                            element.checked = value;
+                        } else if (type === 'select') {
+                            element.value = value;
+                        }
+                    }
+                };
+                
+                setElementValue('autoPlayNext', settings.autoPlayNext || false);
+                setElementValue('showMiniPlayer', settings.showMiniPlayer || false);
+                setElementValue('showLyrics', settings.showLyrics || false);
+                setElementValue('qualitySelect', settings.quality || 'standard', 'select');
             }
             
             // 初始化时调用一次歌词显示更新函数
@@ -1517,26 +1534,48 @@
             
             document.body.appendChild(modal);
             
+            // 应用保存的设置到新创建的模态框
+            const savedSettings = localStorage.getItem('musicSettings');
+            if (savedSettings) {
+                const settings = JSON.parse(savedSettings);
+                
+                const setElementValue = (id, value, type = 'checkbox') => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        if (type === 'checkbox') {
+                            element.checked = value;
+                        } else if (type === 'select') {
+                            element.value = value;
+                        }
+                    }
+                };
+                
+                setElementValue('autoPlayNext', settings.autoPlayNext || false);
+                setElementValue('showMiniPlayer', settings.showMiniPlayer || false);
+                setElementValue('showLyrics', settings.showLyrics || false);
+                setElementValue('qualitySelect', settings.quality || 'standard', 'select');
+            }
+            
             // 主题切换事件
             window.toggleThemeMode = function() {
-                const newTheme = modal.getElementById('themeToggle').checked ? 'black' : 'white';
+                const newTheme = document.getElementById('themeToggle').checked ? 'black' : 'white';
                 applyTheme(newTheme);
             };
 
             // 保存设置按钮事件
-            modal.getElementById('saveSettings').addEventListener('click', function() {
-                const selectedTheme = modal.getElementById('themeToggle').checked ? 'black' : 'white';
+            document.getElementById('saveSettings').addEventListener('click', function() {
+                const selectedTheme = document.getElementById('themeToggle').checked ? 'black' : 'white';
                 localStorage.setItem('musicTheme', selectedTheme);
                 window.currentTheme = selectedTheme;
                 
-                const autoPlayNext = modal.getElementById('autoPlayNext').checked;
-                const showMiniPlayer = modal.getElementById('showMiniPlayer').checked;
-                const showLyrics = modal.getElementById('showLyrics').checked;
+                const autoPlayNext = document.getElementById('autoPlayNext').checked;
+                const showMiniPlayer = document.getElementById('showMiniPlayer').checked;
+                const showLyrics = document.getElementById('showLyrics').checked;
                 localStorage.setItem('musicSettings', JSON.stringify({
                     autoPlayNext,
                     showMiniPlayer,
                     showLyrics,
-                    quality: modal.getElementById('qualitySelect').value
+                    quality: document.getElementById('qualitySelect').value
                 }));
                 
                 // 更新歌词显示状态
