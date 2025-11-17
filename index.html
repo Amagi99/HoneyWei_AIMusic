@@ -2119,5 +2119,16 @@
     <button id="backToTop" class="fixed bottom-6 right-6 bg-accent/90 hover:bg-accent text-white w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 opacity-0 invisible" onclick="scrollToTop()">
         <i class="fas fa-arrow-up"></i>
     </button>
-</body>
+<!-- 右下角气泡提示 -->
+    <div id="infoBubble" class="fixed bottom-6 right-6 bg-accent text-white w-12 h-12 rounded-full flex items-center justify-center cursor-pointer hover:bg-accent/90 transition-all duration-300 shadow-lg z-50">
+        <i class="fas fa-info text-xl"></i>
+    </div>
+    
+    <script>
+        // 气泡点击提示功能
+        document.getElementById('infoBubble').addEventListener('click', function() {
+            alert('此网站仅供学习交流，严禁用于商业用途');
+        });
+    </script>
+    </body>
 </html>
