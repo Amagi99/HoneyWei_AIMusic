@@ -482,6 +482,19 @@
                 <button id="miniCollectButton" class="text-text-secondary hover:text-accent transition-colors duration-300" onclick="collectCurrentSong()">
                     <i class="fas fa-heart"></i>
                 </button>
+                <!-- 播放列表按钮 -->
+                <button id="miniPlaylistButton" class="text-text-secondary hover:text-text-primary transition-colors duration-300" onclick="togglePlaylist()">
+                    <i class="fas fa-list"></i>
+                </button>
+                <!-- 音量控制按钮 -->
+                <button id="miniVolumeButton" class="text-text-secondary hover:text-text-primary transition-colors duration-300" onclick="toggleVolumeControl()">
+                    <i class="fas fa-volume-up"></i>
+                </button>
+                <!-- 下载按钮 -->
+                <button id="miniDownloadButton" class="text-text-secondary hover:text-text-primary transition-colors duration-300" onclick="downloadCurrentSong()">
+                    <i class="fas fa-download"></i>
+                </button>
+                <!-- 保留展开按钮 -->
                 <button class="text-text-secondary hover:text-text-primary transition-colors duration-300" onclick="showFullPlayer()">
                     <i class="fas fa-expand"></i>
                 </button>
@@ -489,8 +502,13 @@
         </div>
     </div>
 
-    <!-- 音频元素 -->
+    <!--// 音频元素 -->
     <audio id="audioPlayer" preload="metadata"></audio>
+    
+    <!-- 音量控制面板 -->
+    <div id="volumeControl" class="hidden absolute bottom-20 right-6 glass-effect-light p-3 rounded-lg shadow-lg z-50 transition-all duration-300">
+        <input type="range" id="miniVolumeSlider" min="0" max="1" step="0.05" value="0.7" class="w-32 accent-accent" oninput="adjustVolume(this.value)">
+    </div>
 
     <script>
         // 全局变量
@@ -521,6 +539,9 @@
         const downloadButton = document.getElementById('downloadButton');
         const miniPlayer = document.getElementById('miniPlayer');
         const volumeBar = document.getElementById('volumeBar');
+        const miniVolumeButton = document.getElementById('miniVolumeButton');
+        const volumeControl = document.getElementById('volumeControl');
+        const miniVolumeSlider = document.getElementById('miniVolumeSlider');
         const shuffleButton = document.getElementById('shuffleButton');
         const playlistButton = document.getElementById('playlistButton');
         const playlistModal = document.getElementById('playlistModal');
@@ -742,8 +763,10 @@
             clearPlaylistBtn.addEventListener('click', clearPlaylist);
             
             // 音频音量设置
-            audioPlayer.volume = currentVolume;
-            updateVolumeBar();
+        audioPlayer.volume = currentVolume;
+        updateVolumeBar();
+        // 初始化音量按钮图标
+        updateVolumeButton();
 
             // 收藏按钮事件
             collectButton.addEventListener('click', collectCurrentSong);
@@ -1118,9 +1141,10 @@
                     // 根据主题设置文本颜色
                     const textPrimaryClass = window.currentTheme === 'black' ? 'text-text-primary-dark' : 'text-text-primary';
                     
-                    document.getElementById('songTitle').textContent = currentSong.name;
-                    document.getElementById('songTitle').className = `text-3xl font-bold mb-2 ${textPrimaryClass}`;
-                    document.getElementById('songArtist').textContent = currentSong.artist;
+                    // 保留中间播放器的标题更新，但不显示播放器
+                document.getElementById('songTitle').textContent = currentSong.name;
+                document.getElementById('songTitle').className = `text-3xl font-bold mb-2 ${textPrimaryClass}`;
+                document.getElementById('songArtist').textContent = currentSong.artist;
                     document.getElementById('albumCover').innerHTML = `<img src="${coverUrl}" alt="${currentSong.name}" class="w-full h-full object-cover">`;
                     document.getElementById('miniSongTitle').textContent = currentSong.name;
                     document.getElementById('miniSongTitle').className = `font-semibold ${textPrimaryClass}`;
@@ -1142,7 +1166,8 @@
                     audioPlayer.src = audioUrl;
                     console.log('音频源:', audioUrl);
                     
-                    playerSection.classList.remove('hidden');
+                    // 不再显示中间播放界面，只显示底部播放器
+                    // playerSection.classList.remove('hidden');
                     miniPlayer.classList.remove('hidden');
                     
                     await audioPlayer.play();
@@ -1358,6 +1383,46 @@
         function updateVolumeBar() {
             volumeBar.style.width = `${window.currentVolume * 100}%`;
         }
+        
+        // 音量控制函数
+        window.adjustVolume = function(value) {
+            const volume = parseFloat(value);
+            audioPlayer.volume = volume;
+            window.currentVolume = volume;
+            localStorage.setItem('musicVolume', volume);
+            updateVolumeButton();
+        };
+        
+        // 更新音量按钮图标
+        function updateVolumeButton() {
+            const volumeIcon = document.getElementById('volumeIcon');
+            const miniVolumeIcon = miniVolumeButton ? miniVolumeButton.querySelector('i') : null;
+            
+            const iconClass = audioPlayer.volume > 0.7 ? 'fa-volume-up' : 
+                             audioPlayer.volume > 0 ? 'fa-volume-down' : 'fa-volume-mute';
+            
+            if (volumeIcon) volumeIcon.className = `fas ${iconClass}`;
+            if (miniVolumeIcon) miniVolumeIcon.className = `fas ${iconClass}`;
+        }
+        
+        // 切换音量控制面板
+        window.toggleVolumeControl = function() {
+            if (volumeControl) {
+                volumeControl.classList.toggle('hidden');
+                // 如果显示音量控制，设置当前音量值
+                if (!volumeControl.classList.contains('hidden') && miniVolumeSlider) {
+                    miniVolumeSlider.value = window.currentVolume;
+                }
+            }
+        };
+        
+        // 点击其他区域关闭音量控制面板
+        document.addEventListener('click', function(e) {
+            if (volumeControl && !volumeControl.contains(e.target) && 
+                miniVolumeButton && !miniVolumeButton.contains(e.target)) {
+                volumeControl.classList.add('hidden');
+            }
+        });
 
         // 格式化时间
         function formatTime(seconds) {
@@ -2093,6 +2158,9 @@
         // 显示完整播放器
         window.showFullPlayer = function() {
             if (window.currentSong) {
+                playerSection.classList.remove('hidden');
+                miniPlayer.classList.remove('hidden');
+                // 滚动到播放器位置
                 playerSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         }
@@ -2116,7 +2184,7 @@
     </script>
 
     <!-- 回到顶部按钮 -->
-    <button id="backToTop" class="fixed bottom-6 right-6 bg-accent/90 hover:bg-accent text-white w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 opacity-0 invisible" onclick="scrollToTop()">
+    <button id="backToTop" class="fixed bottom-24 right-6 bg-accent/90 hover:bg-accent text-white w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 opacity-0 invisible z-40" onclick="scrollToTop()">
         <i class="fas fa-arrow-up"></i>
     </button>
 <!-- 右下角气泡提示 -->
