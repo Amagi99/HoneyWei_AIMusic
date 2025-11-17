@@ -486,10 +486,13 @@
                 <button id="miniPlaylistButton" class="text-text-secondary hover:text-text-primary transition-colors duration-300" onclick="togglePlaylist()">
                     <i class="fas fa-list"></i>
                 </button>
-                <!-- 音量控制按钮 -->
-                <button id="miniVolumeButton" class="text-text-secondary hover:text-text-primary transition-colors duration-300" onclick="toggleVolumeControl()">
-                    <i class="fas fa-volume-up"></i>
-                </button>
+                <!-- 音量控制 -->
+                <div class="flex items-center space-x-2">
+                    <button id="miniVolumeButton" class="text-text-secondary hover:text-text-primary transition-colors duration-300" onclick="toggleVolumeSliderVisibility()">
+                        <i class="fas fa-volume-up"></i>
+                    </button>
+                    <input type="range" id="miniVolumeSlider" min="0" max="1" step="0.05" value="0.7" class="w-24 accent-accent hidden" oninput="adjustVolume(this.value)">
+                </div>
                 <!-- 下载按钮 -->
                 <button id="miniDownloadButton" class="text-text-secondary hover:text-text-primary transition-colors duration-300" onclick="downloadCurrentSong()">
                     <i class="fas fa-download"></i>
@@ -505,10 +508,7 @@
     <!--// 音频元素 -->
     <audio id="audioPlayer" preload="metadata"></audio>
     
-    <!-- 音量控制面板 -->
-    <div id="volumeControl" class="hidden absolute bottom-20 right-6 glass-effect-light p-3 rounded-lg shadow-lg z-50 transition-all duration-300">
-        <input type="range" id="miniVolumeSlider" min="0" max="1" step="0.05" value="0.7" class="w-32 accent-accent" oninput="adjustVolume(this.value)">
-    </div>
+    <!-- 移除原来的弹出式音量控制面板 -->
 
     <script>
         // 全局变量
@@ -1406,19 +1406,29 @@
             if (miniVolumeIcon) miniVolumeIcon.className = `fas ${iconClass}`;
         }
         
-        // 切换音量控制面板
-        window.toggleVolumeControl = function() {
-            if (volumeControl) {
-                volumeControl.classList.toggle('hidden');
-                // 如果显示音量控制，设置当前音量值
-                if (!volumeControl.classList.contains('hidden') && miniVolumeSlider) {
-                    miniVolumeSlider.value = window.currentVolume;
-                }
+        // 切换音量滑块显示/隐藏
+        window.toggleVolumeSliderVisibility = function() {
+            if (miniVolumeSlider) {
+                miniVolumeSlider.classList.toggle('hidden');
+                // 设置当前音量值
+                miniVolumeSlider.value = window.currentVolume;
             }
         };
         
-        // 点击其他区域关闭音量控制面板
-        document.addEventListener('click', function(e) {
+        // 初始化时设置音量滑块的值
+        if (miniVolumeSlider) {
+            miniVolumeSlider.value = window.currentVolume;
+        }
+        
+        // 点击其他区域隐藏音量滑块
+        document.addEventListener('click', function(event) {
+            // 如果点击的不是音量按钮或音量滑块本身
+            if (miniVolumeSlider && 
+                !miniVolumeButton.contains(event.target) && 
+                !miniVolumeSlider.contains(event.target)) {
+                miniVolumeSlider.classList.add('hidden');
+            }
+        });        document.addEventListener('click', function(e) {
             if (volumeControl && !volumeControl.contains(e.target) && 
                 miniVolumeButton && !miniVolumeButton.contains(e.target)) {
                 volumeControl.classList.add('hidden');
