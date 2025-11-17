@@ -2120,15 +2120,70 @@
         <i class="fas fa-arrow-up"></i>
     </button>
 <!-- 右下角气泡提示 -->
-    <div id="infoBubble" class="fixed bottom-6 right-6 bg-accent text-white w-12 h-12 rounded-full flex items-center justify-center cursor-pointer hover:bg-accent/90 transition-all duration-300 shadow-lg z-50">
+    <div id="infoBubble" class="fixed bottom-6 right-6 bg-accent text-white w-12 h-12 flex items-center justify-center rounded-full cursor-pointer shadow-lg hover:bg-accent-dark transition-all duration-300 z-50 transform hover:scale-110">
         <i class="fas fa-info text-xl"></i>
     </div>
     
+    <!-- 自定义模态框 -->
+    <div id="customModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-md w-full shadow-2xl transform transition-all duration-300">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-accent rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-info text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-3">网站使用声明</h3>
+                <p class="text-gray-600 dark:text-gray-300 mb-5">此网站仅供学习交流，严禁用于商业用途</p>
+                <button id="closeModal" class="bg-accent hover:bg-accent-dark text-white font-medium py-2 px-6 rounded-full transition-all duration-300 transform hover:scale-105">
+                    我知道了
+                </button>
+            </div>
+        </div>
+    </div>
+    
     <script>
-        // 气泡点击提示功能
-        document.getElementById('infoBubble').addEventListener('click', function() {
-            alert('此网站仅供学习交流，严禁用于商业用途');
+        // 模态框相关操作
+        const infoBubble = document.getElementById('infoBubble');
+        const customModal = document.getElementById('customModal');
+        const closeModal = document.getElementById('closeModal');
+        
+        // 打开模态框
+        infoBubble.addEventListener('click', function() {
+            customModal.classList.remove('hidden');
+            // 添加动画效果
+            const modalContent = customModal.querySelector('div');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
         });
+        
+        // 关闭模态框
+        closeModal.addEventListener('click', closeModalFunc);
+        
+        // 点击模态框背景关闭
+        customModal.addEventListener('click', function(e) {
+            if (e.target === customModal) {
+                closeModalFunc();
+            }
+        });
+        
+        // 按下ESC键关闭模态框
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && !customModal.classList.contains('hidden')) {
+                closeModalFunc();
+            }
+        });
+        
+        // 关闭模态框的函数
+        function closeModalFunc() {
+            const modalContent = customModal.querySelector('div');
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                customModal.classList.add('hidden');
+            }, 300);
+        }
     </script>
     </body>
 </html>
