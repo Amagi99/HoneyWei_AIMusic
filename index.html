@@ -494,10 +494,7 @@
                 <button id="miniDownloadButton" class="text-text-secondary hover:text-text-primary transition-colors duration-300" onclick="downloadCurrentSong()">
                     <i class="fas fa-download"></i>
                 </button>
-                <!-- 保留展开按钮 -->
-                <button class="text-text-secondary hover:text-text-primary transition-colors duration-300" onclick="showFullPlayer()">
-                    <i class="fas fa-expand"></i>
-                </button>
+                <!-- 移除展开按钮，避免弹出大播放界面 -->
             </div>
         </div>
     </div>
@@ -1175,7 +1172,8 @@
                     updatePlayPauseButton();
                     updateCollectButtonStatus();
                     
-                    playerSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // 不再滚动到播放器位置，避免触发显示播放器
+                    // playerSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     
                     showNotification(`开始播放: ${currentSong.name}`, 'success');
                 } else {
@@ -2155,13 +2153,14 @@
             showNotification('播放器已就绪', 'success');
         });
 
-        // 显示完整播放器
+        // 显示完整播放器 - 现在只更新信息，不显示中间播放界面
         window.showFullPlayer = function() {
             if (window.currentSong) {
-                playerSection.classList.remove('hidden');
+                // 不再显示中间播放界面
+                playerSection.classList.add('hidden');
                 miniPlayer.classList.remove('hidden');
-                // 滚动到播放器位置
-                playerSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // 不再滚动到播放器位置
+                // playerSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         }
 
