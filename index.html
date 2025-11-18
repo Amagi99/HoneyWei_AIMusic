@@ -271,7 +271,7 @@
                 <h1 class="text-xl font-bold gradient-text">Honey Wei Music</h1>
             </div>
             <div class="flex items-center space-x-4">
-                <button id="collectButton" class="bg-accent/20 hover:bg-accent/30 text-accent px-4 py-2 rounded-full transition-all duration-300">
+                <button id="collectButton" class="bg-accent/20 hover:bg-accent/30 text-accent px-4 py-2 rounded-full transition-all duration-300" onclick="window.collectCurrentSong()">
                     <i class="fas fa-heart mr-2"></i>收藏
                 </button>
                 <button id="myCollectionButton" class="bg-accent/20 hover:bg-accent/30 text-accent px-4 py-2 rounded-full transition-all duration-300" onclick="window.showCollectionList();">
@@ -479,7 +479,7 @@
                 </button>
             </div>
             <div class="flex items-center space-x-4">
-                <button id="miniCollectButton" class="text-text-secondary hover:text-accent transition-colors duration-300" onclick="collectCurrentSong()">
+                <button id="miniCollectButton" class="text-text-secondary hover:text-accent transition-colors duration-300" onclick="window.collectCurrentSong()">
                     <i class="fas fa-heart"></i>
                 </button>
                 <!-- 播放列表按钮 -->
@@ -768,9 +768,7 @@
         // 初始化音量按钮图标
         updateVolumeButton();
 
-            // 收藏按钮事件
-            collectButton.addEventListener('click', collectCurrentSong);
-            miniCollectButton.addEventListener('click', collectCurrentSong);
+            // 收藏按钮事件已通过HTML的onclick属性绑定，无需重复添加事件监听器
         }
 
         // 设置音频事件
