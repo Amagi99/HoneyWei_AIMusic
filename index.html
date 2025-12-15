@@ -452,7 +452,7 @@
         <div class="mt-16">
             <h3 id="recommendTitle" class="text-2xl font-bold mb-6 flex items-center">
                 <i class="fas fa-fire mr-3 text-accent"></i>
-                推荐歌曲
+                热歌榜
             </h3>
             <div id="recommendedSongs" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 <!-- 推荐歌曲将通过JavaScript动态生成 -->
@@ -1995,15 +1995,13 @@
                     <div class="inline-block p-4 rounded-full bg-surface/50 animate-pulse">
                         <i class="fas fa-spinner fa-spin text-2xl text-accent"></i>
                     </div>
-                    <p class="mt-4 ${textSecondaryClass}">正在加载推荐歌曲...</p>
+                    <p class="mt-4 ${textSecondaryClass}">正在加载热歌榜...</p>
                 </div>
             `;
 
             try {
-                // 使用搜索API获取热门歌曲 - 搜索一些热门歌曲关键词
-                const hotKeywords = ['周杰伦', '陈奕迅', '林俊杰', 'Taylor Swift', '王菲'];
-                const randomKeyword = hotKeywords[Math.floor(Math.random() * hotKeywords.length)];
-                const searchUrl = `https://api.kxzjoker.cn/api/163_search?name=${encodeURIComponent(randomKeyword)}&limit=12`;
+                // 使用搜索API获取热门歌曲榜
+                const searchUrl = `https://api.kxzjoker.cn/api/163_search?name=热歌榜&limit=12`;
                 
                 console.log('搜索推荐歌曲API:', searchUrl);
                 const response = await fetch(searchUrl);
