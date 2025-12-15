@@ -762,6 +762,23 @@
             searchInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') performSearch();
             });
+            
+            // 当搜索词改变时清空播放列表
+            let searchTimeout;
+            searchInput.addEventListener('input', () => {
+                // 清除之前的定时器
+                clearTimeout(searchTimeout);
+                
+                // 设置新的定时器，在用户停止输入500ms后执行
+                searchTimeout = setTimeout(() => {
+                    const query = searchInput.value.trim();
+                    // 如果搜索词不为空且与当前播放列表的搜索词不同，则清空播放列表
+                    if (query && window.currentResults.length > 0 && 
+                        window.currentResults[0].searchQuery !== query) {
+                        clearPlaylist();
+                    }
+                }, 500);
+            });
 
             // 设置按钮
             document.getElementById('settingsButton').addEventListener('click', showSettingsModal);
@@ -863,13 +880,13 @@
                 if (data && data.list && Array.isArray(data.list) && data.list.length > 0) {
                     window.currentResults = data.list.map((item, index) => {
                         return {
-                            id: item.id || index.toString(), // 使用歌曲ID或索引作为ID
+                            id: `search-${query}-${index}`, // 使用搜索查询和索引生成唯一ID，确保唯一性
                             name: item.name || '未知歌曲',
                             artist: item.artists || '未知歌手',
                             picUrl: item.cover ? item.cover.replace(/`/g, '').trim() : 'https://via.placeholder.com/100',
                             originalData: item,
                             searchQuery: query, // 保存搜索查询
-                            resultIndex: index // 保存结果索引
+                            resultIndex: index // 保存结果索引（0-based）
                         };
                     });
 
@@ -949,8 +966,23 @@
                     showNotification('正在获取下载链接...', 'info');
                     
                     // 使用QQ音乐API获取下载链接
-                    const songQuery = `${song.name} ${song.artist}`;
-                    const apiUrl = `http://cyapi.top/API/qq_music.php?apikey=62ccfd8be755cc5850046044c6348d6cac5ef31bd5874c1352287facc06f94c4&msg=${encodeURIComponent(songQuery)}&n=1&num=1&type=json`;
+                    let songQuery;
+                    let songIndex;
+                    
+                    // 检查歌曲是否来自搜索结果，并且包含正确的索引信息
+                    if (song.searchQuery && song.resultIndex !== undefined) {
+                        // 如果是来自搜索结果，使用原始搜索查询和正确的索引
+                        songQuery = song.searchQuery;
+                        songIndex = song.resultIndex + 1; // QQ音乐API的n参数从1开始
+                        console.log('下载歌曲来自搜索结果，使用原始搜索查询和索引:', songQuery, songIndex);
+                    } else {
+                        // 如果不是来自搜索结果，使用歌曲名称和艺术家进行搜索，默认使用第一个结果
+                        songQuery = `${song.name} ${song.artist}`;
+                        songIndex = 1;
+                        console.log('下载歌曲不是来自搜索结果，使用歌曲信息搜索:', songQuery);
+                    }
+                    
+                    const apiUrl = `http://cyapi.top/API/qq_music.php?apikey=62ccfd8be755cc5850046044c6348d6cac5ef31bd5874c1352287facc06f94c4&msg=${encodeURIComponent(songQuery)}&n=${songIndex}&num=50&type=json`;
                     console.log('调用QQ音乐下载API:', apiUrl);
                     
                     const response = await fetch(apiUrl);
@@ -963,8 +995,8 @@
                     if (data && data.url) {
                         audioUrl = data.url;
                     } else if (data && data.data && Array.isArray(data.data) && data.data.length > 0) {
-                        // 如果返回的是搜索结果列表，重新调用API获取第一个结果的详细信息
-                        const detailApiUrl = `http://cyapi.top/API/qq_music.php?apikey=62ccfd8be755cc5850046044c6348d6cac5ef31bd5874c1352287facc06f94c4&msg=${encodeURIComponent(songQuery)}&n=1&num=1&type=json`;
+                        // 如果返回的是搜索结果列表，重新调用API获取对应结果的详细信息
+                        const detailApiUrl = `http://cyapi.top/API/qq_music.php?apikey=62ccfd8be755cc5850046044c6348d6cac5ef31bd5874c1352287facc06f94c4&msg=${encodeURIComponent(songQuery)}&n=${songIndex}&num=50&type=json`;
                         const detailResponse = await fetch(detailApiUrl);
                         const detailData = await detailResponse.json();
                         console.log('QQ音乐详细下载API返回数据:', detailData);
@@ -1038,7 +1070,9 @@
         // 添加到播放列表并播放
         window.addToPlaylistAndPlay = async function(songId) {
             const targetId = songId.toString();
-            const song = window.currentResults.find(s => s.id === targetId) || 
+            
+            // 首先查找目标歌曲
+            let song = window.currentResults.find(s => s.id === targetId) || 
                           window.collection.find(s => s.id === targetId) ||
                           window.playlist.find(s => s.id === targetId);
             
@@ -1047,12 +1081,28 @@
                 return;
             }
 
-            if (!window.playlist.some(item => item.id === song.id)) {
+            // 如果歌曲来自搜索结果，则将整个搜索结果添加到播放列表
+            if (window.currentResults && window.currentResults.length > 0 && 
+                window.currentResults.some(s => s.id === targetId)) {
+                
+                // 清空当前播放列表
+                window.playlist = [];
+                
+                // 将整个搜索结果添加到播放列表，保持索引信息
+                window.playlist = [...window.currentResults];
+                
+                // 更新播放列表显示
+                renderPlaylist();
+                
+                showNotification(`已将 ${window.currentResults.length} 首歌曲添加到播放列表`, 'success');
+            } else if (!window.playlist.some(item => item.id === song.id)) {
+                // 如果不是来自搜索结果且歌曲不在播放列表中，则单独添加
                 window.playlist.push(song);
                 renderPlaylist();
                 showNotification(`已添加到播放列表: ${song.name}`, 'success');
             }
 
+            // 找到要播放的歌曲在播放列表中的索引
             window.currentIndex = window.playlist.findIndex(item => item.id === song.id);
             await playSongByIndex(window.currentIndex);
         }
@@ -1076,14 +1126,16 @@
                 let coverUrl = currentSong.picUrl || window.currentSong.cover || '';
                 let lyric = null;
                 
-                // 检查当前歌曲是否来自搜索结果，并且是否包含原始搜索数据
-                if (window.currentSong.originalData && window.currentSong.searchQuery) {
-                    // 如果是来自搜索结果，则使用搜索查询和索引获取歌曲详细信息
+                // 检查当前歌曲是否来自搜索结果，并且是否包含原始搜索数据和索引
+                if (window.currentSong.searchQuery && window.currentSong.resultIndex !== undefined) {
+                    // 如果是来自搜索结果，则使用搜索查询和正确的索引获取歌曲详细信息
                     const searchQuery = window.currentSong.searchQuery;
                     const songIndex = window.currentSong.resultIndex + 1; // QQ音乐API的n参数从1开始
                     
-                    const apiUrl = `http://cyapi.top/API/qq_music.php?apikey=62ccfd8be755cc5850046044c6348d6cac5ef31bd5874c1352287facc06f94c4&msg=${encodeURIComponent(searchQuery)}&n=${songIndex}&num=1&type=json`;
+                    const apiUrl = `http://cyapi.top/API/qq_music.php?apikey=62ccfd8be755cc5850046044c6348d6cac5ef31bd5874c1352287facc06f94c4&msg=${encodeURIComponent(searchQuery)}&n=${songIndex}&num=50&type=json`;
                     console.log('调用QQ音乐播放API:', apiUrl);
+                    console.log('使用的搜索查询:', searchQuery);
+                    console.log('使用的歌曲索引(n参数):', songIndex);
                     
                     // 添加CORS配置并设置超时
                     const controller = new AbortController();
@@ -1124,9 +1176,10 @@
                     }
                 } else {
                     // 如果不是来自搜索结果，或者没有原始数据，则使用歌曲名称和艺术家进行搜索
+                    // 并且默认使用第一个搜索结果
                     const songQuery = `${currentSong.name} ${currentSong.artist}`;
                     const apiUrl = `http://cyapi.top/API/qq_music.php?apikey=62ccfd8be755cc5850046044c6348d6cac5ef31bd5874c1352287facc06f94c4&msg=${encodeURIComponent(songQuery)}&n=1&num=1&type=json`;
-                    console.log('调用QQ音乐播放API:', apiUrl);
+                    console.log('调用QQ音乐播放API(非搜索结果):', apiUrl);
                     
                     // 添加CORS配置并设置超时
                     const controller = new AbortController();
