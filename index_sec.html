@@ -567,42 +567,46 @@
         window.parseLyrics = function(lyricsText) {
             // 解析歌词格式：[00:00.00] 歌词文本，支持多种可能的格式
             const lyrics = [];
-            // 更灵活的正则表达式，匹配各种时间戳格式
-            const timeRegex = /\[(\d{2}):(\d{2})(?:\.(\d{1,3}))?\](.*?)(?=\[\d{2}:|$)/g;
-            let match;
             
-            // 首先尝试匹配标准的带时间戳的歌词格式
-            let hasTimeStamps = false;
-            while ((match = timeRegex.exec(lyricsText)) !== null) {
-                hasTimeStamps = true;
-                const minutes = parseInt(match[1]);
-                const seconds = parseInt(match[2]);
-                const milliseconds = match[3] ? parseInt(match[3]) : 0;
-                const text = match[4].trim();
-                
-                // 转换为秒数
-                const time = minutes * 60 + seconds + milliseconds / 1000;
-                
-                if (text) { // 忽略空歌词
-                    lyrics.push({ time, text });
-                }
+            // 检查输入是否有效
+            if (!lyricsText || typeof lyricsText !== 'string') {
+                console.warn('Invalid lyrics text provided to parseLyrics:', lyricsText);
+                return lyrics;
             }
             
-            // 如果没有找到带时间戳的歌词，将整个文本按行分割
-            if (!hasTimeStamps && lyricsText) {
-                const lines = lyricsText.split('\n');
-                lines.forEach((line, index) => {
-                    // 简单地为每行分配递增的时间
-                    const cleanLine = line.replace(/\[\d{2}:\d{2}(?:\.\d{1,3})?\]/g, '').trim();
-                    if (cleanLine) {
-                        // 为无时间戳歌词分配大致时间（每10秒一行）
-                        lyrics.push({ time: index * 10, text: cleanLine });
+            // 按行分割歌词
+            const lines = lyricsText.split('\n');
+            
+            // 用于存储时间戳歌词的数组
+            const timedLines = [];
+            
+            // 遍历每一行
+            lines.forEach(line => {
+                // 匹配时间戳格式：[00:00.00] 或 [00:00]
+                const timeRegex = /\[(\d{2}):(\d{2})(?:\.(\d{2,3}))?\](.*)/;
+                const match = line.match(timeRegex);
+                
+                if (match) {
+                    const minutes = parseInt(match[1], 10);
+                    const seconds = parseInt(match[2], 10);
+                    const milliseconds = match[3] ? parseInt(match[3], 10) : 0;
+                    const text = match[4].trim();
+                    
+                    // 转换为总秒数
+                    const time = minutes * 60 + seconds + milliseconds / 1000;
+                    
+                    // 只添加非空文本的行
+                    if (text) {
+                        timedLines.push({ time, text });
                     }
-                });
-            }
+                }
+            });
             
             // 按时间排序
-            return lyrics.sort((a, b) => a.time - b.time);
+            timedLines.sort((a, b) => a.time - b.time);
+            
+            // 返回解析后的歌词
+            return timedLines;
         }
         
         // 歌词显示更新函数
