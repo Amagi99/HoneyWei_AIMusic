@@ -863,7 +863,9 @@
                             name: item.name || '未知歌曲',
                             artist: item.artists || '未知歌手',
                             picUrl: item.cover ? item.cover.replace(/`/g, '').trim() : 'https://via.placeholder.com/100',
-                            originalData: item
+                            originalData: item,
+                            searchQuery: query, // 保存搜索查询
+                            resultIndex: index // 保存结果索引
                         };
                     });
 
@@ -1070,56 +1072,94 @@
                 let coverUrl = currentSong.picUrl || window.currentSong.cover || '';
                 let lyric = null;
                 
-                // 使用QQ音乐API获取播放链接和歌词
-                // 首先搜索歌曲，然后使用n参数获取指定歌曲的详细信息
-                const songQuery = `${currentSong.name} ${currentSong.artist}`;
-                const apiUrl = `http://cyapi.top/API/qq_music.php?apikey=62ccfd8be755cc5850046044c6348d6cac5ef31bd5874c1352287facc06f94c4&msg=${encodeURIComponent(songQuery)}&n=1&num=1&type=json`;
-                console.log('调用QQ音乐播放API:', apiUrl);
-                
-                // 添加CORS配置并设置超时
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10秒超时
-                
-                let response;
-                try {
-                    response = await fetch(apiUrl, {
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'application/json',
-                        },
-                        mode: 'cors', // 添加CORS模式
-                        signal: controller.signal
-                    });
-                    clearTimeout(timeoutId);
-                } catch (fetchError) {
-                    clearTimeout(timeoutId);
-                    console.error('Fetch请求失败:', fetchError);
-                    throw new Error(`网络请求失败: ${fetchError.message}`);
-                }
-                
-                if (!response.ok) throw new Error(`API请求失败，状态码: ${response.status}`);
-                
-                let data = await response.json();
-                console.log('QQ音乐播放API返回数据:', data);
-
-                // 处理QQ音乐API返回的数据
-                if (data && data.url) {
-                    audioUrl = data.url;
-                    lyric = data.lyric || null;
-                    console.log('找到音频URL和歌词');
-                } else if (data && data.data && Array.isArray(data.data) && data.data.length > 0) {
-                    // 如果返回的是搜索结果列表，使用第一个结果
-                    const firstResult = data.data[0];
-                    // 重新调用API，获取第一个结果的详细信息
-                    const detailApiUrl = `http://cyapi.top/API/qq_music.php?apikey=62ccfd8be755cc5850046044c6348d6cac5ef31bd5874c1352287facc06f94c4&msg=${encodeURIComponent(songQuery)}&n=1&num=1&type=json`;
-                    const detailResponse = await fetch(detailApiUrl);
-                    const detailData = await detailResponse.json();
-                    console.log('QQ音乐详细API返回数据:', detailData);
+                // 检查当前歌曲是否来自搜索结果，并且是否包含原始搜索数据
+                if (window.currentSong.originalData && window.currentSong.searchQuery) {
+                    // 如果是来自搜索结果，则使用搜索查询和索引获取歌曲详细信息
+                    const searchQuery = window.currentSong.searchQuery;
+                    const songIndex = window.currentSong.resultIndex + 1; // QQ音乐API的n参数从1开始
                     
-                    if (detailData && detailData.url) {
-                        audioUrl = detailData.url;
-                        lyric = detailData.lyric || null;
-                        console.log('从详细API找到音频URL和歌词');
+                    const apiUrl = `http://cyapi.top/API/qq_music.php?apikey=62ccfd8be755cc5850046044c6348d6cac5ef31bd5874c1352287facc06f94c4&msg=${encodeURIComponent(searchQuery)}&n=${songIndex}&num=1&type=json`;
+                    console.log('调用QQ音乐播放API:', apiUrl);
+                    
+                    // 添加CORS配置并设置超时
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10秒超时
+                    
+                    let response;
+                    try {
+                        response = await fetch(apiUrl, {
+                            method: 'GET',
+                            headers: {
+                                'Accept': 'application/json',
+                            },
+                            mode: 'cors', // 添加CORS模式
+                            signal: controller.signal
+                        });
+                        clearTimeout(timeoutId);
+                    } catch (fetchError) {
+                        clearTimeout(timeoutId);
+                        console.error('Fetch请求失败:', fetchError);
+                        throw new Error(`网络请求失败: ${fetchError.message}`);
+                    }
+                    
+                    if (!response.ok) throw new Error(`API请求失败，状态码: ${response.status}`);
+                    
+                    let data = await response.json();
+                    console.log('QQ音乐播放API返回数据:', data);
+
+                    // 处理QQ音乐API返回的数据
+                    if (data && data.url) {
+                        audioUrl = data.url.replace(/`/g, '').trim(); // 清理URL中的反引号
+                        lyric = data.lyric || null;
+                        console.log('找到音频URL和歌词');
+                        
+                        // 更新封面URL（如果API返回了更高质量的封面）
+                        if (data.cover && data.cover.large) {
+                            coverUrl = data.cover.large.replace(/`/g, '').trim();
+                        }
+                    }
+                } else {
+                    // 如果不是来自搜索结果，或者没有原始数据，则使用歌曲名称和艺术家进行搜索
+                    const songQuery = `${currentSong.name} ${currentSong.artist}`;
+                    const apiUrl = `http://cyapi.top/API/qq_music.php?apikey=62ccfd8be755cc5850046044c6348d6cac5ef31bd5874c1352287facc06f94c4&msg=${encodeURIComponent(songQuery)}&n=1&num=1&type=json`;
+                    console.log('调用QQ音乐播放API:', apiUrl);
+                    
+                    // 添加CORS配置并设置超时
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10秒超时
+                    
+                    let response;
+                    try {
+                        response = await fetch(apiUrl, {
+                            method: 'GET',
+                            headers: {
+                                'Accept': 'application/json',
+                            },
+                            mode: 'cors', // 添加CORS模式
+                            signal: controller.signal
+                        });
+                        clearTimeout(timeoutId);
+                    } catch (fetchError) {
+                        clearTimeout(timeoutId);
+                        console.error('Fetch请求失败:', fetchError);
+                        throw new Error(`网络请求失败: ${fetchError.message}`);
+                    }
+                    
+                    if (!response.ok) throw new Error(`API请求失败，状态码: ${response.status}`);
+                    
+                    let data = await response.json();
+                    console.log('QQ音乐播放API返回数据:', data);
+
+                    // 处理QQ音乐API返回的数据
+                    if (data && data.url) {
+                        audioUrl = data.url.replace(/`/g, '').trim(); // 清理URL中的反引号
+                        lyric = data.lyric || null;
+                        console.log('找到音频URL和歌词');
+                        
+                        // 更新封面URL（如果API返回了更高质量的封面）
+                        if (data.cover && data.cover.large) {
+                            coverUrl = data.cover.large.replace(/`/g, '').trim();
+                        }
                     }
                 }
                 
@@ -1141,14 +1181,16 @@
                     document.getElementById('miniAlbumCover').src = coverUrl;
 
                     // 保存当前歌曲的歌词
-                    window.currentSong.lyric = lyric;
+                    // QQ音乐API返回的歌词在lyric.text字段中
+                    window.currentSong.lyric = typeof lyric === 'object' && lyric !== null ? (lyric.text || JSON.stringify(lyric)) : (lyric || '');
                     
                     // 更新歌词显示
                     updateLyricsDisplay();
                     
                     // 如果有歌词，输出日志
                     if (lyric) {
-                        console.log('处理歌词:', lyric.substring(0, 100) + '...');
+                        const lyricText = typeof lyric === 'object' && lyric !== null ? (lyric.text || JSON.stringify(lyric)) : (lyric || '');
+                        console.log('处理歌词:', lyricText.substring(0, 100) + '...');
                         // 这里可以添加歌词解析和显示的逻辑
                     }
 
