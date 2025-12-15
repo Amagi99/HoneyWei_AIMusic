@@ -862,7 +862,6 @@
                             id: item.id || index.toString(), // 使用歌曲ID或索引作为ID
                             name: item.name || '未知歌曲',
                             artist: item.artists || '未知歌手',
-                            album: '未知专辑', // QQ音乐API搜索结果中没有专辑信息
                             picUrl: item.cover ? item.cover.replace(/`/g, '').trim() : 'https://via.placeholder.com/100',
                             originalData: item
                         };
@@ -906,7 +905,6 @@
                         <div class="flex-1 min-w-0">
                             <h4 class="font-semibold text-lg mb-1 truncate ${textPrimaryClass}">${song.name}</h4>
                             <p class="${textSecondaryClass} text-sm mb-2 truncate">${song.artist}</p>
-                            <p class="${textSecondaryClass} text-xs truncate">${song.album}</p>
                         </div>
                         <div class="flex items-center space-x-3">
                             <button class="${textSecondaryClass} hover:text-accent transition-colors duration-300 p-2 rounded-full hover:bg-surface/50" onclick="event.stopPropagation(); downloadSongById('${song.id}')">
@@ -2012,26 +2010,13 @@
                             id: item.id || index.toString(), // 使用歌曲ID或索引作为ID
                             name: item.name || '未知歌曲',
                             artist: item.artists || '未知艺术家',
-                            album: '未知专辑', // QQ音乐API搜索结果中没有专辑信息
                             picUrl: item.cover ? item.cover.replace(/`/g, '').trim() : 'https://via.placeholder.com/200',
                             originalData: item
                         };
                     }).slice(0, 8); // 最多显示8首推荐歌曲
                 }
 
-                // 如果没有获取到数据，使用备用推荐列表
-                if (recommendedSongs.length === 0) {
-                    recommendedSongs = [
-                        { id: '109951163129267735', name: '江南', artist: '林俊杰', album: '第二天堂', picUrl: 'https://p2.music.126.net/43rJJn219b6nkZ0ZqJ48Jw==/109951165161423325.jpg' },
-                        { id: '109951163047324515', name: '一千年以后', artist: '林俊杰', album: '编号89757', picUrl: 'https://p2.music.126.net/6a5n2E8F6xG9Q7l3d6D2Gw==/109951163129267735.jpg' },
-                        { id: '109951163649786832', name: '不为谁而作的歌', artist: '林俊杰', album: '和自己对话', picUrl: 'https://p2.music.126.net/5JZt15d8f5Y4g5J5z6B6Dg==/109951163047324515.jpg' },
-                        { id: '109951163137267644', name: '大鱼', artist: '周深', album: '深的深', picUrl: 'https://p2.music.126.net/8Z7x7x6x5x4x3x2x1x0x/109951163137267644.jpg' },
-                        { id: '109951163047324516', name: '光亮', artist: '周深', album: '紫禁城', picUrl: 'https://p2.music.126.net/9A8B7C6D5E4F3G2H1I0J/109951163047324516.jpg' },
-                        { id: '109951163649786833', name: '人是_', artist: '周深', album: '反深代词', picUrl: 'https://p2.music.126.net/6y-UleORITEDbvrOLV0Q8A==/5639395138885806.jpg' },
-                        { id: '109951163129267736', name: '起风了', artist: '周深', album: '起风了', picUrl: 'https://p2.music.126.net/7942687127024444/109951162946734994.jpg' },
-                        { id: '109951163047324517', name: '化身孤岛的鲸', artist: '周深', album: '化身孤岛的鲸', picUrl: 'https://p2.music.126.net/5JZt15d8f5Y4g5J5z6B6Dh==/109951163047324517.jpg' }
-                    ];
-                }
+                
                 
                 // 尝试预加载前3首歌曲的音频URL，这样用户点击播放时可以直接使用
                 console.log('开始预加载歌曲音频URL...');
@@ -2084,8 +2069,7 @@
                             <img src="${song.picUrl}" alt="${song.name}" class="w-full h-full object-cover">
                         </div>
                         <h4 class="font-semibold text-lg mb-1 truncate ${textPrimaryClass}">${song.name}</h4>
-                        <p class="${textSecondaryClass} text-sm mb-2">${song.artist}</p>
-                        <p class="${textSecondaryClass} text-xs mb-3">${song.album}</p>
+                        <p class="${textSecondaryClass} text-sm mb-3">${song.artist}</p>
                         <div class="flex justify-between">
                             <button class="${textSecondaryClass} hover:text-accent transition-colors duration-300" onclick="event.stopPropagation(); collectRecommendedSong('${song.id}')">
                                 <i class="fas fa-heart ${isCollected(song.id) ? 'text-accent' : ''} mr-1"></i>
