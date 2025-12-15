@@ -160,7 +160,7 @@
                     colors: {
                         primary: '#1a1a1a',
                         secondary: '#2a2a2a',
-                        accent: '#1db954', // 核心强调色（绿色不变，确保所有主题下清晰）
+                        accent: '#e53e3e', // 核心强调色（改为红色）
                         surface: '#f0f0f0', // 浅色主题的表面色
                         'surface-dark': '#3a3a3a', // 深色主题的表面色
                         'text-primary': '#333333', // 浅色主题文本色
@@ -220,7 +220,7 @@
                 border: 1px solid rgba(255, 255, 255, 0.2);
             }
             .gradient-text {
-                background: linear-gradient(45deg, #1db954, #50e3c2);
+                background: linear-gradient(45deg, #e53e3e, #f56565);
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
                 background-clip: text;
@@ -230,7 +230,7 @@
                 width: 4px;
                 height: 20px;
                 margin: 0 2px;
-                background: linear-gradient(to top, #1db954, #50e3c2);
+                background: linear-gradient(to top, #e53e3e, #f56565);
                 border-radius: 2px;
                 animation: wave 1s ease-in-out infinite;
             }
@@ -243,7 +243,7 @@
                 50% { height: 20px; }
             }
             .progress-bar {
-                background: linear-gradient(90deg, #1db954, #50e3c2);
+                background: linear-gradient(90deg, #e53e3e, #f56565);
             }
             .hover-lift {
                 transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -316,11 +316,11 @@
             <!-- 热门搜索 -->
             <div class="mt-6 flex flex-wrap justify-center gap-2">
                 <span id="hotSearchLabel" class="text-sm text-text-secondary mr-2">热门搜索：</span>
-                <button class="text-text-secondary hover:text-accent transition-colors duration-300" onclick="searchHot('周杰伦')"># 周杰伦</button>
+                <button class="text-text-secondary hover:text-accent transition-colors duration-300" onclick="searchHot('热歌榜')"># 周杰伦</button>
                 <button class="text-text-secondary hover:text-accent transition-colors duration-300" onclick="searchHot('林俊杰')"># 林俊杰</button>
                 <button class="text-text-secondary hover:text-accent transition-colors duration-300" onclick="searchHot('邓紫棋')"># 邓紫棋</button>
-                <button class="text-text-secondary hover:text-accent transition-colors duration-300" onclick="searchHot('陈奕迅')"># 陈奕迅</button>
-                <button class="text-text-secondary hover:text-accent transition-colors duration-300" onclick="searchHot('李荣浩')"># 李荣浩</button>
+                <button class="text-text-secondary hover:text-accent transition-colors duration-300" onclick="searchHot('老歌')"># 陈奕迅</button>
+                <button class="text-text-secondary hover:text-accent transition-colors duration-300" onclick="searchHot('新歌榜')"># 李荣浩</button>
             </div>
         </div>
 
