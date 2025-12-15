@@ -865,8 +865,8 @@
 
                 console.log('开始搜索:', query);
                 
-                const apiUrl = `http://cyapi.top/API/qq_music.php?apikey=62ccfd8be755cc5850046044c6348d6cac5ef31bd5874c1352287facc06f94c4&msg=${encodeURIComponent(query)}&num=50&type=json`;
-                const response = await fetch(apiUrl);
+                const apiUrl = `https://cyapi.top/API/qq_music.php?apikey=62ccfd8be755cc5850046044c6348d6cac5ef31bd5874c1352287facc06f94c4&msg=${encodeURIComponent(query)}&num=50&type=json`;
+                const response = await fetch(apiUrl, { mode: 'cors' });
                 console.log('搜索API响应状态:', response.status);
                 
                 if (!response.ok) {
@@ -982,10 +982,10 @@
                         console.log('下载歌曲不是来自搜索结果，使用歌曲信息搜索:', songQuery);
                     }
                     
-                    const apiUrl = `http://cyapi.top/API/qq_music.php?apikey=62ccfd8be755cc5850046044c6348d6cac5ef31bd5874c1352287facc06f94c4&msg=${encodeURIComponent(songQuery)}&n=${songIndex}&num=50&type=json`;
+                    const apiUrl = `https://cyapi.top/API/qq_music.php?apikey=62ccfd8be755cc5850046044c6348d6cac5ef31bd5874c1352287facc06f94c4&msg=${encodeURIComponent(songQuery)}&n=${songIndex}&num=50&type=json`;
                     console.log('调用QQ音乐下载API:', apiUrl);
                     
-                    const response = await fetch(apiUrl);
+                    const response = await fetch(apiUrl, { mode: 'cors' });
                     if (!response.ok) throw new Error(`API请求失败，状态码: ${response.status}`);
                     
                     const data = await response.json();
@@ -996,8 +996,8 @@
                         audioUrl = data.url;
                     } else if (data && data.data && Array.isArray(data.data) && data.data.length > 0) {
                         // 如果返回的是搜索结果列表，重新调用API获取对应结果的详细信息
-                        const detailApiUrl = `http://cyapi.top/API/qq_music.php?apikey=62ccfd8be755cc5850046044c6348d6cac5ef31bd5874c1352287facc06f94c4&msg=${encodeURIComponent(songQuery)}&n=${songIndex}&num=50&type=json`;
-                        const detailResponse = await fetch(detailApiUrl);
+                        const detailApiUrl = `https://cyapi.top/API/qq_music.php?apikey=62ccfd8be755cc5850046044c6348d6cac5ef31bd5874c1352287facc06f94c4&msg=${encodeURIComponent(songQuery)}&n=${songIndex}&num=50&type=json`;
+                        const detailResponse = await fetch(detailApiUrl, { mode: 'cors' });
                         const detailData = await detailResponse.json();
                         console.log('QQ音乐详细下载API返回数据:', detailData);
                         
@@ -1132,7 +1132,7 @@
                     const searchQuery = window.currentSong.searchQuery;
                     const songIndex = window.currentSong.resultIndex + 1; // QQ音乐API的n参数从1开始
                     
-                    const apiUrl = `http://cyapi.top/API/qq_music.php?apikey=62ccfd8be755cc5850046044c6348d6cac5ef31bd5874c1352287facc06f94c4&msg=${encodeURIComponent(searchQuery)}&n=${songIndex}&num=50&type=json`;
+                    const apiUrl = `https://cyapi.top/API/qq_music.php?apikey=62ccfd8be755cc5850046044c6348d6cac5ef31bd5874c1352287facc06f94c4&msg=${encodeURIComponent(searchQuery)}&n=${songIndex}&num=50&type=json`;
                     console.log('调用QQ音乐播放API:', apiUrl);
                     console.log('使用的搜索查询:', searchQuery);
                     console.log('使用的歌曲索引(n参数):', songIndex);
@@ -1178,7 +1178,7 @@
                     // 如果不是来自搜索结果，或者没有原始数据，则使用歌曲名称和艺术家进行搜索
                     // 并且默认使用第一个搜索结果
                     const songQuery = `${currentSong.name} ${currentSong.artist}`;
-                    const apiUrl = `http://cyapi.top/API/qq_music.php?apikey=62ccfd8be755cc5850046044c6348d6cac5ef31bd5874c1352287facc06f94c4&msg=${encodeURIComponent(songQuery)}&n=1&num=1&type=json`;
+                    const apiUrl = `https://cyapi.top/API/qq_music.php?apikey=62ccfd8be755cc5850046044c6348d6cac5ef31bd5874c1352287facc06f94c4&msg=${encodeURIComponent(songQuery)}&n=1&num=1&type=json`;
                     console.log('调用QQ音乐播放API(非搜索结果):', apiUrl);
                     
                     // 添加CORS配置并设置超时
@@ -2088,10 +2088,10 @@
 
             try {
                 // 使用QQ音乐API获取热门歌曲
-                const searchUrl = `http://cyapi.top/API/qq_music.php?apikey=62ccfd8be755cc5850046044c6348d6cac5ef31bd5874c1352287facc06f94c4&msg=热歌榜&num=12&type=json`;
+                const searchUrl = `https://cyapi.top/API/qq_music.php?apikey=62ccfd8be755cc5850046044c6348d6cac5ef31bd5874c1352287facc06f94c4&msg=热歌榜&num=12&type=json`;
                 
                 console.log('搜索推荐歌曲API:', searchUrl);
-                const response = await fetch(searchUrl);
+                const response = await fetch(searchUrl, { mode: 'cors' });
                 
                 if (!response.ok) {
                     throw new Error(`API请求失败，状态码: ${response.status}`);
@@ -2123,7 +2123,7 @@
                     try {
                         // 使用QQ音乐API预加载歌曲
                         const songQuery = `${recommendedSongs[i].name} ${recommendedSongs[i].artist}`;
-                        const apiUrl = `http://cyapi.top/API/qq_music.php?apikey=62ccfd8be755cc5850046044c6348d6cac5ef31bd5874c1352287facc06f94c4&msg=${encodeURIComponent(songQuery)}&n=1&num=1&type=json`;
+                        const apiUrl = `https://cyapi.top/API/qq_music.php?apikey=62ccfd8be755cc5850046044c6348d6cac5ef31bd5874c1352287facc06f94c4&msg=${encodeURIComponent(songQuery)}&n=1&num=1&type=json`;
                         
                         console.log(`预加载歌曲 ${i+1}/${Math.min(3, recommendedSongs.length)}: ${recommendedSongs[i].name}`);
                         
