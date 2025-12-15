@@ -262,28 +262,28 @@
 <!-- 初始主题：白色（默认），动态切换class -->
 <body class="bg-theme-white text-text-primary min-h-screen font-inter transition-colors duration-500">
     <!-- 导航栏：根据主题切换玻璃效果 -->
-    <nav id="mainNav" class="glass-effect-light sticky top-0 z-50 px-4 py-2 sm:px-6 sm:py-4 transition-all duration-500">
-        <div class="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-3">
-            <div class="flex items-center space-x-3 sm:space-x-4">
-                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-accent rounded-full flex items-center justify-center">
-                    <i class="fas fa-music text-white text-sm sm:text-lg"></i>
+    <nav id="mainNav" class="glass-effect-light sticky top-0 z-50 px-2 sm:px-4 py-2 sm:py-3 transition-all duration-500">
+        <div class="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-2">
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <div class="w-7 h-7 sm:w-9 sm:h-9 bg-accent rounded-full flex items-center justify-center">
+                    <i class="fas fa-music text-white text-xs sm:text-base"></i>
                 </div>
-                <h1 class="text-sm sm:text-xl font-bold gradient-text">Honey Wei Music</h1>
+                <h1 class="text-xs sm:text-lg font-bold gradient-text">Honey Wei Music</h1>
             </div>
-            <div class="flex items-center space-x-2 sm:space-x-4">
-                <button id="collectButton" class="bg-accent/20 hover:bg-accent/30 text-accent px-3 py-1 sm:px-4 sm:py-2 rounded-full transition-all duration-300 text-xs sm:text-sm" onclick="window.collectCurrentSong()">
+            <div class="flex items-center space-x-1 sm:space-x-3">
+                <button id="collectButton" class="bg-accent/20 hover:bg-accent/30 text-accent px-2 py-1 sm:px-3 sm:py-2 rounded-full transition-all duration-300 text-xs sm:text-sm whitespace-nowrap" onclick="window.collectCurrentSong()">
                     <i class="fas fa-heart mr-1"></i>收藏
                 </button>
-                <button id="myCollectionButton" class="bg-accent/20 hover:bg-accent/30 text-accent px-3 py-1 sm:px-4 sm:py-2 rounded-full transition-all duration-300 text-xs sm:text-sm" onclick="window.showCollectionList();">
+                <button id="myCollectionButton" class="bg-accent/20 hover:bg-accent/30 text-accent px-2 py-1 sm:px-3 sm:py-2 rounded-full transition-all duration-300 text-xs sm:text-sm whitespace-nowrap" onclick="window.showCollectionList();">
                     <i class="fas fa-bookmark mr-1"></i>我的收藏
                 </button>
-                <button id="settingsButton" class="bg-surface/30 hover:bg-surface/50 text-text-primary px-3 py-1 sm:px-4 sm:py-2 rounded-full transition-all duration-300">
+                <button id="settingsButton" class="bg-surface/30 hover:bg-surface/50 text-text-primary px-2 py-1 sm:px-3 sm:py-2 rounded-full transition-all duration-300">
                     <i class="fas fa-cog text-xs sm:text-sm"></i>
                 </button>
-                <a href="https://amagi99.github.io/HoneyWei_Blog/" target="_blank" rel="noopener noreferrer" class="bg-surface/30 hover:bg-surface/50 text-text-primary px-3 py-1 sm:px-4 sm:py-2 rounded-full transition-all duration-300">
+                <a href="https://amagi99.github.io/HoneyWei_Blog/" target="_blank" rel="noopener noreferrer" class="bg-surface/30 hover:bg-surface/50 text-text-primary px-2 py-1 sm:px-3 sm:py-2 rounded-full transition-all duration-300">
                     <i class="fab fa-github text-xs sm:text-sm"></i>
                 </a>
-                <button id="infoBubble" class="bg-surface/30 hover:bg-surface/50 text-text-primary px-3 py-1 sm:px-4 sm:py-2 rounded-full transition-all duration-300">
+                <button id="infoBubble" class="bg-surface/30 hover:bg-surface/50 text-text-primary px-2 py-1 sm:px-3 sm:py-2 rounded-full transition-all duration-300">
                     <i class="fas fa-info text-xs sm:text-sm"></i>
                 </button>
             </div>
@@ -413,14 +413,14 @@
                                     <i class="fas fa-download mr-2"></i>下载
                                 </button>
                             </div>
-                            <div class="flex items-center space-x-4">
-                                <button class="text-text-secondary hover:text-text-primary transition-colors duration-300">
+                            <div class="flex items-center space-x-3 sm:space-x-4">
+                                <button class="text-text-secondary hover:text-text-primary transition-colors duration-300 text-xs sm:text-sm">
                                     <i class="fas fa-volume-down"></i>
                                 </button>
-                                <div class="w-32 bg-surface/50 rounded-full h-1 cursor-pointer" onclick="setVolume(event)">
+                                <div class="w-20 sm:w-32 bg-surface/50 rounded-full h-1 cursor-pointer" onclick="setVolume(event)">
                                     <div class="bg-accent h-1 rounded-full w-2/3" id="volumeBar"></div>
                                 </div>
-                                <button class="text-text-secondary hover:text-text-primary transition-colors duration-300">
+                                <button class="text-text-secondary hover:text-text-primary transition-colors duration-300 text-xs sm:text-sm">
                                     <i class="fas fa-volume-up"></i>
                                 </button>
                             </div>
@@ -461,47 +461,47 @@
     </div>
 
     <!-- 底部播放器 -->
-    <div id="miniPlayer" class="hidden fixed bottom-0 left-0 right-0 glass-effect-light p-4 transition-all duration-500">
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
-            <div class="flex items-center space-x-4">
-                <img id="miniAlbumCover" src="" alt="专辑封面" class="w-16 h-16 rounded-lg">
-                <div>
-                    <p id="miniSongTitle" class="font-semibold text-text-primary"></p>
-                    <p id="miniSongArtist" class="text-sm text-text-secondary"></p>
+    <div id="miniPlayer" class="hidden fixed bottom-0 left-0 right-0 glass-effect-light p-2 sm:p-3 transition-all duration-500">
+        <div class="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-2">
+            <div class="flex items-center space-x-3">
+                <img id="miniAlbumCover" src="" alt="专辑封面" class="w-12 h-12 sm:w-16 sm:h-16 rounded-lg">
+                <div class="min-w-0">
+                    <p id="miniSongTitle" class="font-semibold text-text-primary text-xs sm:text-sm truncate"></p>
+                    <p id="miniSongArtist" class="text-text-secondary text-xs sm:text-sm truncate"></p>
                 </div>
             </div>
-            <div class="flex items-center space-x-4">
-                <button class="text-text-secondary hover:text-text-primary transition-colors duration-300" onclick="playPrevSong()">
+            <div class="flex items-center space-x-3">
+                <button class="text-text-secondary hover:text-text-primary transition-colors duration-300 text-xs sm:text-sm" onclick="playPrevSong()">
                     <i class="fas fa-backward"></i>
                 </button>
-                <button id="miniPlayPauseButton" class="bg-accent hover:bg-accent/90 text-white w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300" onclick="togglePlayPause()">
-                    <i class="fas fa-play ml-1"></i>
+                <button id="miniPlayPauseButton" class="bg-accent hover:bg-accent/90 text-white w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all duration-300" onclick="togglePlayPause()">
+                    <i class="fas fa-play ml-1 text-xs sm:text-sm"></i>
                 </button>
-                <button class="text-text-secondary hover:text-text-primary transition-colors duration-300" onclick="playNextSong()">
+                <button class="text-text-secondary hover:text-text-primary transition-colors duration-300 text-xs sm:text-sm" onclick="playNextSong()">
                     <i class="fas fa-forward"></i>
                 </button>
             </div>
-            <div class="flex items-center space-x-4">
-                <button id="miniCollectButton" class="text-text-secondary hover:text-accent transition-colors duration-300" onclick="window.collectCurrentSong()">
+            <div class="flex items-center space-x-2">
+                <button id="miniCollectButton" class="text-text-secondary hover:text-accent transition-colors duration-300 text-xs sm:text-sm" onclick="window.collectCurrentSong()">
                     <i class="fas fa-heart"></i>
                 </button>
                 <!-- 播放列表按钮 -->
-                <button id="miniPlaylistButton" class="text-text-secondary hover:text-text-primary transition-colors duration-300" onclick="togglePlaylist()">
+                <button id="miniPlaylistButton" class="text-text-secondary hover:text-text-primary transition-colors duration-300 text-xs sm:text-sm" onclick="togglePlaylist()">
                     <i class="fas fa-list"></i>
                 </button>
                 <!-- 音量控制 -->
-                <div class="flex items-center space-x-2">
-                    <button id="miniVolumeButton" class="text-text-secondary hover:text-text-primary transition-colors duration-300" onclick="toggleVolumeSliderVisibility()">
+                <div class="flex items-center space-x-1 sm:space-x-2">
+                    <button id="miniVolumeButton" class="text-text-secondary hover:text-text-primary transition-colors duration-300 text-xs sm:text-sm" onclick="toggleVolumeSliderVisibility()">
                         <i class="fas fa-volume-up"></i>
                     </button>
-                    <input type="range" id="miniVolumeSlider" min="0" max="1" step="0.05" value="0.7" class="w-24 accent-accent hidden" oninput="adjustVolume(this.value)">
+                    <input type="range" id="miniVolumeSlider" min="0" max="1" step="0.05" value="0.7" class="w-16 sm:w-24 accent-accent hidden" oninput="adjustVolume(this.value)">
                 </div>
                 <!-- 下载按钮 -->
-                <button id="miniDownloadButton" class="text-text-secondary hover:text-text-primary transition-colors duration-300" onclick="downloadCurrentSong()">
+                <button id="miniDownloadButton" class="text-text-secondary hover:text-text-primary transition-colors duration-300 text-xs sm:text-sm" onclick="downloadCurrentSong()">
                     <i class="fas fa-download"></i>
                 </button>
                 <!-- 展开到全屏播放器按钮 -->
-                <button id="miniExpandButton" class="text-text-secondary hover:text-text-primary transition-colors duration-300" onclick="showFullPlayer()">
+                <button id="miniExpandButton" class="text-text-secondary hover:text-text-primary transition-colors duration-300 text-xs sm:text-sm" onclick="showFullPlayer()">
                     <i class="fas fa-expand"></i>
                 </button>
             </div>
