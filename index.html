@@ -262,29 +262,29 @@
 <!-- 初始主题：白色（默认），动态切换class -->
 <body class="bg-theme-white text-text-primary min-h-screen font-inter transition-colors duration-500">
     <!-- 导航栏：根据主题切换玻璃效果 -->
-    <nav id="mainNav" class="glass-effect-light sticky top-0 z-50 px-6 py-4 transition-all duration-500">
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
-            <div class="flex items-center space-x-4">
-                <div class="w-10 h-10 bg-accent rounded-full flex items-center justify-center">
-                    <i class="fas fa-music text-white text-lg"></i>
+    <nav id="mainNav" class="glass-effect-light sticky top-0 z-50 px-4 py-2 sm:px-6 sm:py-4 transition-all duration-500">
+        <div class="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-3">
+            <div class="flex items-center space-x-3 sm:space-x-4">
+                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-accent rounded-full flex items-center justify-center">
+                    <i class="fas fa-music text-white text-sm sm:text-lg"></i>
                 </div>
-                <h1 class="text-xl font-bold gradient-text">Honey Wei Music</h1>
+                <h1 class="text-sm sm:text-xl font-bold gradient-text">Honey Wei Music</h1>
             </div>
-            <div class="flex items-center space-x-4">
-                <button id="collectButton" class="bg-accent/20 hover:bg-accent/30 text-accent px-4 py-2 rounded-full transition-all duration-300" onclick="window.collectCurrentSong()">
-                    <i class="fas fa-heart mr-2"></i>收藏
+            <div class="flex items-center space-x-2 sm:space-x-4">
+                <button id="collectButton" class="bg-accent/20 hover:bg-accent/30 text-accent px-3 py-1 sm:px-4 sm:py-2 rounded-full transition-all duration-300 text-xs sm:text-sm" onclick="window.collectCurrentSong()">
+                    <i class="fas fa-heart mr-1"></i>收藏
                 </button>
-                <button id="myCollectionButton" class="bg-accent/20 hover:bg-accent/30 text-accent px-4 py-2 rounded-full transition-all duration-300" onclick="window.showCollectionList();">
-                    <i class="fas fa-bookmark mr-2"></i>我的收藏
+                <button id="myCollectionButton" class="bg-accent/20 hover:bg-accent/30 text-accent px-3 py-1 sm:px-4 sm:py-2 rounded-full transition-all duration-300 text-xs sm:text-sm" onclick="window.showCollectionList();">
+                    <i class="fas fa-bookmark mr-1"></i>我的收藏
                 </button>
-                <button id="settingsButton" class="bg-surface/30 hover:bg-surface/50 text-text-primary px-4 py-2 rounded-full transition-all duration-300">
-                    <i class="fas fa-cog"></i>
+                <button id="settingsButton" class="bg-surface/30 hover:bg-surface/50 text-text-primary px-3 py-1 sm:px-4 sm:py-2 rounded-full transition-all duration-300">
+                    <i class="fas fa-cog text-xs sm:text-sm"></i>
                 </button>
-                <a href="https://amagi99.github.io/HoneyWei_Blog/" target="_blank" rel="noopener noreferrer" class="bg-surface/30 hover:bg-surface/50 text-text-primary px-4 py-2 rounded-full transition-all duration-300">
-                    <i class="fab fa-github"></i>
+                <a href="https://amagi99.github.io/HoneyWei_Blog/" target="_blank" rel="noopener noreferrer" class="bg-surface/30 hover:bg-surface/50 text-text-primary px-3 py-1 sm:px-4 sm:py-2 rounded-full transition-all duration-300">
+                    <i class="fab fa-github text-xs sm:text-sm"></i>
                 </a>
-                <button id="infoBubble" class="bg-surface/30 hover:bg-surface/50 text-text-primary px-4 py-2 rounded-full transition-all duration-300">
-                    <i class="fas fa-info"></i>
+                <button id="infoBubble" class="bg-surface/30 hover:bg-surface/50 text-text-primary px-3 py-1 sm:px-4 sm:py-2 rounded-full transition-all duration-300">
+                    <i class="fas fa-info text-xs sm:text-sm"></i>
                 </button>
             </div>
         </div>
