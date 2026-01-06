@@ -4,18 +4,20 @@
   "description": "Honey Wei Music",
   "icons": [
     {
-      "src": "assets/img/apple-touch-icon-v2.png",
+      "src": "apple-touch-icon-v2.png",
       "sizes": "180x180",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "assets/img/favicon-v2.ico",
+      "src": "favicon-v2.ico",
       "sizes": "32x32",
       "type": "image/x-icon"
     }
   ],
   "start_url": "/HoneyWei_AIMusic/index.html",
   "display": "standalone",
-  "theme_color": "#ffffff",
-  "background_color": "#ffffff"
+  "theme_color": "#1db954",
+  "background_color": "#ffffff",
+  "orientation": "portrait-primary"
 }

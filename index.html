@@ -2299,7 +2299,24 @@
         });
         
         // 关闭模态框
-        closeModal.addEventListener('click', closeModalFunc);
+        closeModal.addEventListener('click', function() {
+            const modalContent = customModal.querySelector('div');
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                customModal.classList.add('hidden');
+            }, 300);
+        });
+        
+        // 关闭模态框的函数
+        function closeModalFunc() {
+            const modalContent = customModal.querySelector('div');
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                customModal.classList.add('hidden');
+            }, 300);
+        }
         
         // 点击模态框背景关闭
         customModal.addEventListener('click', function(e) {
@@ -2315,14 +2332,17 @@
             }
         });
         
-        // 关闭模态框的函数
-        function closeModalFunc() {
-            const modalContent = customModal.querySelector('div');
-            modalContent.classList.remove('scale-100', 'opacity-100');
-            modalContent.classList.add('scale-95', 'opacity-0');
-            setTimeout(() => {
-                customModal.classList.add('hidden');
-            }, 300);
+        // Service Worker注册，用于PWA功能
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/HoneyWei_AIMusic/service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker 注册成功:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker 注册失败:', error);
+                    });
+            });
         }
     </script>
     </body>
