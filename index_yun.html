@@ -1043,6 +1043,8 @@
         // 添加到播放列表并播放
         window.addToPlaylistAndPlay = async function(songId) {
             const targetId = songId.toString();
+            // 先判断歌曲是否来自搜索结果
+            const isFromSearchResults = window.currentResults.some(s => s.id === targetId);
             const song = window.currentResults.find(s => s.id === targetId) || 
                           window.collection.find(s => s.id === targetId) ||
                           window.playlist.find(s => s.id === targetId);
@@ -1052,10 +1054,29 @@
                 return;
             }
 
-            if (!window.playlist.some(item => item.id === song.id)) {
-                window.playlist.push(song);
-                renderPlaylist();
-                showNotification(`已添加到播放列表: ${song.name}`, 'success');
+            if (isFromSearchResults) {
+                // 检查当前播放列表是否包含当前搜索结果中的歌曲
+                const hasSearchResults = window.currentResults.some(searchSong => 
+                    window.playlist.some(playlistSong => playlistSong.id === searchSong.id)
+                );
+                
+                if (!hasSearchResults) {
+                    // 清空播放列表
+                    window.playlist = [];
+                    // 将所有搜索结果添加到播放列表
+                    window.currentResults.forEach(searchSong => {
+                        window.playlist.push(searchSong);
+                    });
+                    renderPlaylist();
+                    showNotification(`已添加 ${window.currentResults.length} 首歌曲到播放列表`, 'success');
+                }
+            } else {
+                // 非搜索结果歌曲，保持原有逻辑
+                if (!window.playlist.some(item => item.id === song.id)) {
+                    window.playlist.push(song);
+                    renderPlaylist();
+                    showNotification(`已添加到播放列表: ${song.name}`, 'success');
+                }
             }
 
             window.currentIndex = window.playlist.findIndex(item => item.id === song.id);
