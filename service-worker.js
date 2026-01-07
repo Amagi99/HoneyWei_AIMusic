@@ -3,8 +3,7 @@ const CACHE_NAME = 'honey-wei-music-v1';
 const ASSETS_TO_CACHE = [
   '/HoneyWei_AIMusic/index.html',
   '/HoneyWei_AIMusic/index_yun.html',
-  '/HoneyWei_AIMusic/favicon-v2.ico',
-  '/HoneyWei_AIMusic/apple-touch-icon-v2.png',
+  '/HoneyWei_AIMusic/tubiao.ico',
   '/HoneyWei_AIMusic/manifest.json'
 ];
 
