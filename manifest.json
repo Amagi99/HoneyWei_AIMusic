@@ -4,10 +4,15 @@
   "description": "Honey Wei Music",
   "icons": [
     {
-      "src": "tubiao.ico",
-      "sizes": "256x256 128x128 96x96 72x72 64x64 48x48 32x32 24x24 16x16",
-      "type": "image/x-icon",
-      "purpose": "any"
+      "src": "apple-touch-icon-v2.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "favicon-v2.ico",
+      "sizes": "32x32",
+      "type": "image/x-icon"
     }
   ],
   "start_url": "/HoneyWei_AIMusic/index.html",
